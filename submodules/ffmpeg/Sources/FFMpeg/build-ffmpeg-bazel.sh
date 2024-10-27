@@ -33,7 +33,7 @@ PKG_CONFIG="$SOURCE_DIR/pkg-config"
 
 export PATH="$SOURCE_DIR:$PATH"
 
-LIB_NAMES="libavcodec libavformat libavutil libswresample"
+LIB_NAMES="libavcodec libavformat libavutil libswresample libswscale"
 
 set -e
 
@@ -43,6 +43,7 @@ CONFIGURE_FLAGS="--enable-cross-compile --disable-programs \
                  --enable-avcodec  \
                  --enable-swresample \
                  --enable-avformat \
+                 --enable-swscale \
                  --disable-xlib \
                  --enable-libopus \
 				 --enable-libvpx \

@@ -445,7 +445,7 @@ public final class TelegramMediaFile: Media, Equatable, Codable {
     public let mimeType: String
     public let size: Int64?
     public let attributes: [TelegramMediaFileAttribute]
-    public let alternativeRepresentations: [Media]
+    public var alternativeRepresentations: [Media]
     public let peerIds: [PeerId] = []
     
     public var id: MediaId? {

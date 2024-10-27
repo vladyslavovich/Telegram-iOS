@@ -1,0 +1,4509 @@
+From 231a6d3138588712e857d9e1255566b066fa8b2f Mon Sep 17 00:00:00 2001
+From: Vladyslav Kocherhin <vlayslav.kocherhin@viber.com>
+Date: Sun, 27 Oct 2024 21:12:23 +0200
+Subject: [PATCH] smth
+
+---
+ ...ate_minimal_development_configuration.json |  10 +-
+ submodules/HLSObjcModule/BUILD                |  57 +++
+ .../PublicHeaders/HLSObjcModule/HLSDecoder.h  |  36 ++
+ .../Sources/FFMpegDecoder.cpp                 | 270 +++++++++++
+ .../HLSObjccppModule/Sources/FFMpegDecoder.h  |  66 +++
+ .../HLSObjccppModule/Sources/HLSDecoder.mm    | 282 +++++++++++
+ .../HLSObjcModule/HLSDecoderAudioFrame.h      |  31 ++
+ .../HLSObjcModule/HLSDecoderFrame.h           |  24 +
+ .../HLSObjcModule/HLSDecoderMetadata.h        |  22 +
+ .../HLSObjcModule/HLSDecoderStream.h          |  28 ++
+ .../HLSObjcModule/HLSDecoderVideoFrame.h      |  31 ++
+ .../HLSObjcModule/HLSObjcModule.h             |   8 +
+ .../HLSObjcModule/HLSPlayerDrawLayer.h        |  19 +
+ .../Sources/HLSDecoderAudioFrame.m            |  28 ++
+ .../Sources/HLSDecoderMetadata.m              |  22 +
+ .../hlsobjcmodule/Sources/HLSDecoderStream.m  |  25 +
+ .../Sources/HLSDecoderVideoFrame.m            |  29 ++
+ .../Sources/HLSPlayerDrawLayer.m              |  50 ++
+ .../SyncCore/SyncCore_TelegramMediaFile.swift |   2 +-
+ .../TelegramUniversalVideoContent/BUILD       |  45 ++
+ .../Resources/HLSVideo.metal                  |  30 ++
+ .../HLS/DataLoader/HLSDataLoader.swift        | 177 +++++++
+ .../HLS/DataLoader/HLSRequestManager.swift    |  68 +++
+ .../HLS/DataParser/HLSDataParser.swift        |  67 +++
+ .../HLS/DataParser/HLSParserEntity.swift      |  23 +
+ .../HLS/DataParser/HLSParserValueType.swift   |  69 +++
+ .../HLS/DataParser/HLSValueMapper.swift       | 163 +++++++
+ .../HLS/DataParser/Models/HLSManifest.swift   | 137 ++++++
+ .../HLS/DataParser/Models/HLSStream.swift     | 147 ++++++
+ .../HLS/FileManager/HLSFileManager.swift      |  67 +++
+ .../Sources/HLS/HLSDecoder.swift              | 204 ++++++++
+ .../Sources/HLS/HLSMetalLayer.swift           | 160 +++++++
+ .../Sources/HLS/HLSPlayer.swift               | 294 ++++++++++++
+ .../Sources/HLS/HLSTimer.swift                | 131 +++++
+ .../Sources/HLS/Helpers/HLSLock.swift         |  36 ++
+ .../Sources/HLS/Helpers/HLSQClosure.swift     |  28 ++
+ .../Sources/HLS/Helpers/HLSTask.swift         |  82 ++++
+ .../HLS/Helpers/String+Extension.swift        |  45 ++
+ .../HLS/StreamManager/HLSStreamManager.swift  | 447 ++++++++++++++++++
+ .../HLSStreamManagerDelegate.swift            |  19 +
+ .../StreamManager/HLSStreamManagerTrack.swift | 210 ++++++++
+ .../Sources/HLSVideoContent.swift             | 219 +++------
+ submodules/ffmpeg/BUILD                       |   3 +
+ .../Sources/FFMpeg/build-ffmpeg-bazel.sh      |   3 +-
+ 44 files changed, 3761 insertions(+), 153 deletions(-)
+ create mode 100644 submodules/HLSObjcModule/BUILD
+ create mode 100644 submodules/HLSObjcModule/hlsobjcmodule/HLSObjccppModule/PublicHeaders/HLSObjcModule/HLSDecoder.h
+ create mode 100644 submodules/HLSObjcModule/hlsobjcmodule/HLSObjccppModule/Sources/FFMpegDecoder.cpp
+ create mode 100644 submodules/HLSObjcModule/hlsobjcmodule/HLSObjccppModule/Sources/FFMpegDecoder.h
+ create mode 100644 submodules/HLSObjcModule/hlsobjcmodule/HLSObjccppModule/Sources/HLSDecoder.mm
+ create mode 100644 submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderAudioFrame.h
+ create mode 100644 submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderFrame.h
+ create mode 100644 submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderMetadata.h
+ create mode 100644 submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderStream.h
+ create mode 100644 submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderVideoFrame.h
+ create mode 100644 submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSObjcModule.h
+ create mode 100644 submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSPlayerDrawLayer.h
+ create mode 100644 submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSDecoderAudioFrame.m
+ create mode 100644 submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSDecoderMetadata.m
+ create mode 100644 submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSDecoderStream.m
+ create mode 100644 submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSDecoderVideoFrame.m
+ create mode 100644 submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSPlayerDrawLayer.m
+ create mode 100644 submodules/TelegramUniversalVideoContent/Resources/HLSVideo.metal
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/DataLoader/HLSDataLoader.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/DataLoader/HLSRequestManager.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/HLSDataParser.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/HLSParserEntity.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/HLSParserValueType.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/HLSValueMapper.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/Models/HLSManifest.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/Models/HLSStream.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/FileManager/HLSFileManager.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/HLSDecoder.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/HLSMetalLayer.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/HLSPlayer.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/HLSTimer.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/Helpers/HLSLock.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/Helpers/HLSQClosure.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/Helpers/HLSTask.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/Helpers/String+Extension.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/StreamManager/HLSStreamManager.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/StreamManager/HLSStreamManagerDelegate.swift
+ create mode 100644 submodules/TelegramUniversalVideoContent/Sources/HLS/StreamManager/HLSStreamManagerTrack.swift
+
+diff --git a/build-system/template_minimal_development_configuration.json b/build-system/template_minimal_development_configuration.json
+index 1aad0aed95..84e79d020c 100755
+--- a/build-system/template_minimal_development_configuration.json
++++ b/build-system/template_minimal_development_configuration.json
+@@ -1,8 +1,8 @@
+ {
+-	"bundle_id": "org.{! a random string !}.Telegram",
+-	"api_id": "{! get one at https://my.telegram.org/apps !}",
+-	"api_hash": "{! get one at https://my.telegram.org/apps !}",
+-	"team_id": "{! check README.md !}",
++	"bundle_id": "{}",
++	"api_id": "{}",
++	"api_hash": "{}",
++	"team_id": "{}",
+ 	"app_center_id": "0",
+ 	"is_internal_build": "true",
+ 	"is_appstore_build": "false",
+@@ -11,4 +11,4 @@
+ 	"premium_iap_product_id": "",
+ 	"enable_siri": false,
+ 	"enable_icloud": false
+-}
+\ No newline at end of file
++}
+diff --git a/submodules/HLSObjcModule/BUILD b/submodules/HLSObjcModule/BUILD
+new file mode 100644
+index 0000000000..b8165a5c22
+--- /dev/null
++++ b/submodules/HLSObjcModule/BUILD
+@@ -0,0 +1,57 @@
++load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library")
++
++cc_library(
++    name = "HLSObjcModuleBinding",
++    srcs = [
++    ],
++    hdrs = glob([
++        "hlsobjcmodule/PublicHeaders/**/*.h",
++        "hlsobjcmodule/HLSObjccppModule/PublicHeaders/**/*.h",
++    ]),
++    includes = [
++        "PublicHeaders",
++    ],
++    copts = [
++        "-std=c++17",
++    ],
++    deps = [
++    ],
++    visibility = ["//visibility:public"],
++    linkstatic = 1,
++)
++
++objc_library(
++    name = "HLSObjcModule",
++    enable_modules = True,
++    module_name = "HLSObjcModule",
++    srcs = glob([
++        "hlsobjcmodule/Sources/**/*.m",
++        "hlsobjcmodule/Sources/**/*.h",
++        "hlsobjcmodule/HLSObjccppModule/Sources/**/*.mm",
++        "hlsobjcmodule/HLSObjccppModule/Sources/**/*.cpp",
++        "hlsobjcmodule/HLSObjccppModule/Sources/**/*.h",
++    ]),
++    hdrs = glob([
++        "hlsobjcmodule/PublicHeaders/**/*.h",
++        "hlsobjcmodule/HLSObjccppModule/PublicHeaders/**/*.h",
++    ]),
++    includes = [
++        "hlsobjcmodule/HLSObjccppModule/PublicHeaders",
++        "hlsobjcmodule/PublicHeaders",
++    ],
++    copts = [
++        "-I{}/hlsobjcmodule/Sources".format(package_name()),
++    ],
++    deps = [
++        "//submodules/ffmpeg:ffmpeg"
++    ],
++    sdk_frameworks = [
++        "Foundation",
++        "AVFAudio",
++        "CoreGraphics",
++        "Metal",
++    ],
++    visibility = [
++        "//visibility:public",
++    ],
++)
+diff --git a/submodules/HLSObjcModule/hlsobjcmodule/HLSObjccppModule/PublicHeaders/HLSObjcModule/HLSDecoder.h b/submodules/HLSObjcModule/hlsobjcmodule/HLSObjccppModule/PublicHeaders/HLSObjcModule/HLSDecoder.h
+new file mode 100644
+index 0000000000..c470fb9dca
+--- /dev/null
++++ b/submodules/HLSObjcModule/hlsobjcmodule/HLSObjccppModule/PublicHeaders/HLSObjcModule/HLSDecoder.h
+@@ -0,0 +1,36 @@
++//
++//  HLSVideoDecoder.h
++//  Telegram
++//
++//  Created byVlad on 21.10.2024.
++//
++
++
++#ifndef HLSDecoder_h
++#define HLSDecoder_h
++
++#import <Foundation/Foundation.h>
++#import <HLSObjcModule/HLSDecoderFrame.h>
++#import <HLSObjcModule/HLSDecoderMetadata.h>
++#import <Metal/Metal.h>
++
++typedef void (^HLSDecoderCallBack)(NSArray<id<HLSDecoderFrame>> * _Nonnull frames);
++typedef BOOL (^HLSDecoderStopBlock)();
++
++@interface HLSDecoder: NSObject
++
++@property (readonly, nonatomic, nonnull) id<MTLDevice> mtlDevice;
++
++- (instancetype _Nonnull)initWithDevice:(id<MTLDevice> _Nonnull)mtlDevice;
++
++- (HLSDecoderMetadata * _Nullable)getMetadataWithFileName:(NSString * _Nonnull)fileName;
++- (void)decodeWithFileName:(NSString * _Nonnull)fileName
++          preferredInitPts:(int)preferredInitPts
++             seekTimestamp:(int)seekTimestamp
++                segmentUid:(NSUUID * _Nonnull)segmentUid
++                shouldStop:(HLSDecoderStopBlock _Nonnull)shouldStop
++                completion:(HLSDecoderCallBack _Nonnull)completion;
++
++@end
++
++#endif /* HLSDecoder_h */
+diff --git a/submodules/HLSObjcModule/hlsobjcmodule/HLSObjccppModule/Sources/FFMpegDecoder.cpp b/submodules/HLSObjcModule/hlsobjcmodule/HLSObjccppModule/Sources/FFMpegDecoder.cpp
+new file mode 100644
+index 0000000000..ddd40c8c4e
+--- /dev/null
++++ b/submodules/HLSObjcModule/hlsobjcmodule/HLSObjccppModule/Sources/FFMpegDecoder.cpp
+@@ -0,0 +1,270 @@
++//
++//  FFMpegDecoder.cpp
++//  Telegram
++//
++//  Created byVlad on 21.10.2024.
++//
++
++#include "FFMpegDecoder.h"
++#include <iostream>
++#include <thread>
++#include <chrono>
++
++extern "C" {
++#include <libavformat/avformat.h>
++#include <libavcodec/avcodec.h>
++#include <libavutil/imgutils.h>
++#include <libavutil/opt.h>
++#include <libavutil/time.h>
++#include <libavutil/pixfmt.h>
++#include <libswresample/swresample.h>
++#include <libavutil/frame.h>
++#include <libavutil/mathematics.h>
++#include <libavutil/avutil.h>
++#include <libswscale/swscale.h>
++}
++
++class FFmpegDecoderImpl : public FFmpegDecoder {
++public:
++    explicit FFmpegDecoderImpl();
++    Metadata* getMetadata(const char* inputFile);
++    void Decode(const char* inputFile,
++                int64_t preferred_init_pts,
++                bool *stop,
++                int64_t seekTimestamp,
++                std::function<void(std::vector<std::unique_ptr<Frame>>* frames)> callback);
++    void FlushCacheBuffers(std::queue<std::unique_ptr<Frame>>* audio_cache_buffer,
++                           std::queue<std::unique_ptr<Frame>>* video_cache_buffer,
++                           std::function<void(std::vector<std::unique_ptr<Frame>>* frames)> callback);
++    
++private:
++    bool is_manual_pts_control = false;
++    int64_t manual_pts_step = 1;
++    std::tuple<AVFrame*, double> ReadFrame(AVFormatContext* context, AVCodecContext* codec, AVPacket* pkt, const AVStream* stream, int64_t *last_org_stream_pts, int64_t *current_stream_pts);
++};
++
++FFmpegDecoder* FFmpegDecoder::create() {
++    return new FFmpegDecoderImpl();
++}
++
++FFmpegDecoderImpl::FFmpegDecoderImpl() {}
++
++FFmpegDecoder::Metadata* FFmpegDecoderImpl::getMetadata(const char* inputFile) {
++    Metadata* metadata = new Metadata();
++    
++    AVFormatContext* fmt_ctx = NULL;
++    std::unique_ptr<AVStream*> audio_stream;
++    std::unique_ptr<AVStream*>video_stream;
++    int video_stream_index = -1;
++    int audio_stream_index = -1;
++    
++    avformat_open_input(&fmt_ctx, inputFile, NULL, NULL);
++    avformat_find_stream_info(fmt_ctx, NULL);
++    
++    for (int i = 0; i < fmt_ctx->nb_streams; i++) {
++        if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
++            video_stream_index = i;
++        }
++        
++        if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
++            audio_stream_index = i;
++        }
++    }
++    
++    AVStream* av_stream;
++    
++    if (video_stream_index != -1) {
++        av_stream = fmt_ctx->streams[video_stream_index];
++    } else if (audio_stream_index != -1) {
++        av_stream = fmt_ctx->streams[audio_stream_index];
++    }
++    
++    std::unique_ptr<FFmpegDecoder::Stream> stream = std::make_unique<Stream>(av_stream);
++    metadata->streams.push_back(std::move(stream));
++    
++    avformat_close_input(&fmt_ctx);
++    
++    return metadata;
++}
++
++// Why I use this instead of full power of FFMpeg's HLS playlist? Because is challange for me
++void FFmpegDecoderImpl::Decode(const char* inputFile,
++                               int64_t preferred_init_pts,
++                               bool *stop,
++                               int64_t seekTimestamp,
++                               std::function<void(std::vector<std::unique_ptr<Frame>>* frames)> callback) {
++    AVFormatContext* fmt_ctx = NULL;
++    AVCodecContext* v_codec_ctx = NULL;
++    AVCodecContext* a_codec_ctx = NULL;
++    AVStream* audio_stream = NULL;
++    AVStream* video_stream = NULL;
++    
++    std::queue<std::unique_ptr<Frame>> video_frame_cache;
++    std::queue<std::unique_ptr<Frame>> audio_frame_cache;
++    int video_stream_index = -1;
++    int audio_stream_index = -1;
++    int64_t current_audio_stream_pts = preferred_init_pts;
++    int64_t current_video_stream_pts = preferred_init_pts;
++    int64_t last_audio_org_pts = 0;
++    int64_t last_video_org_pts = 0;
++    is_manual_pts_control = preferred_init_pts > -1;
++    
++    AVPacket* pkt = av_packet_alloc();
++    
++    //    if (initFmtCtx) {
++    //        AVFormatContext* initfmt_ctx = NULL;
++    //        avformat_open_input(&initfmt_ctx, initFile, NULL, NULL);
++    //        initialize_segment_from_init(initfmt_ctx, &fmt_ctx);
++    //        fmt_ctx->pb = initfmt_ctx->pb;
++    //        fmt_ctx->iformat = initfmt_ctx->iformat;
++    //        fmt_ctx->priv_data = initfmt_ctx->priv_data;
++    //        avformat_open_input(&fmt_ctx, inputFile, NULL, NULL);
++    //    } else {
++    ////        fmt_ctx->flags |= AVFMT_FLAG_GENPTS;
++    ////        fmt_ctx->flags |= AVFMT_FLAG_NOFILLIN;
++    ////        AVFormatContext *formatCtx = nullptr;
++    ////        AVInputFormat *inputFormat = av_find_input_format("mov");
++    //
++    avformat_open_input(&fmt_ctx, inputFile, NULL, NULL);
++    //    }
++    
++    
++    avformat_find_stream_info(fmt_ctx, NULL);
++    
++    for (int i = 0; i < fmt_ctx->nb_streams; i++) {
++        if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
++            video_stream_index = i;
++        }
++        
++        if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
++            audio_stream_index = i;
++        }
++    }
++    
++    if (video_stream_index != -1) {
++        video_stream = fmt_ctx->streams[video_stream_index];
++        const AVCodecParameters *codec_parameters = video_stream->codecpar;
++        const AVCodec* v_codec = avcodec_find_decoder(codec_parameters->codec_id);
++        v_codec_ctx = avcodec_alloc_context3(v_codec);
++        avcodec_parameters_to_context(v_codec_ctx, codec_parameters);
++        avcodec_open2(v_codec_ctx, v_codec, NULL);
++        manual_pts_step = video_stream->time_base.den * ((double)video_stream->avg_frame_rate.den / (double)video_stream->avg_frame_rate.num);
++    }
++    
++    if (audio_stream_index != -1) {
++        audio_stream = fmt_ctx->streams[audio_stream_index];
++        audio_stream->start_time = 0;
++        
++        const AVCodecParameters *codec_parameters = audio_stream->codecpar;
++        const AVCodec* a_codec = avcodec_find_decoder(codec_parameters->codec_id);
++        a_codec_ctx = avcodec_alloc_context3(a_codec);
++        avcodec_parameters_to_context(a_codec_ctx, codec_parameters);
++        int res = avcodec_open2(a_codec_ctx, a_codec, NULL);
++        
++        std::cout << res;
++    }
++    
++    long long int seek_target_pts = seekTimestamp;
++    
++    while (!*stop && av_read_frame(fmt_ctx, pkt) >= 0) {
++        AVFrame *frame;
++        double pts;
++        
++        if (pkt->stream_index == video_stream_index) {
++            std::tie(frame, pts) = this->ReadFrame(fmt_ctx, v_codec_ctx, pkt, video_stream, &last_video_org_pts, &current_video_stream_pts);
++            if (frame != nullptr && pts >= seek_target_pts && !*stop) {
++                std::unique_ptr<Frame> _frame = std::make_unique<Frame>(frame, video_stream);
++                video_frame_cache.push(std::move(_frame));
++                
++                if (audio_frame_cache.size() > 0 || audio_stream_index == -1) {
++                    FlushCacheBuffers(&audio_frame_cache, &video_frame_cache, callback);
++                }
++            } else {
++                av_frame_free(&frame);
++            }
++            continue;
++        }
++        
++        if (pkt->stream_index == audio_stream_index) {
++            std::tie(frame, pts) = this->ReadFrame(fmt_ctx, a_codec_ctx, pkt, audio_stream, &last_audio_org_pts, &current_audio_stream_pts);
++            if (frame != nullptr && pts >= seek_target_pts && !*stop) {
++                std::unique_ptr<Frame> _frame = std::make_unique<Frame>(frame, audio_stream);
++                audio_frame_cache.push(std::move(_frame));
++                
++                if (/*video_frame_cache.size() > 0 || */video_stream_index == -1) {
++                    FlushCacheBuffers(&audio_frame_cache, &video_frame_cache, callback);
++                }
++            } else {
++                av_frame_free(&frame);
++            }
++            continue;
++        }
++    }
++    
++    if (!*stop) {
++        FlushCacheBuffers(&audio_frame_cache, &video_frame_cache, callback);
++    }
++    
++    av_packet_free(&pkt);
++    avcodec_free_context(&v_codec_ctx);
++    avcodec_free_context(&a_codec_ctx);
++    avformat_close_input(&fmt_ctx);
++}
++
++std::tuple<AVFrame*, double> FFmpegDecoderImpl::ReadFrame(AVFormatContext* context,
++                                                          AVCodecContext* codec,
++                                                          AVPacket* pkt,
++                                                          const AVStream* stream,
++                                                          int64_t *last_org_stream_pts,
++                                                          int64_t *current_stream_pts) {
++    int try_count = 0;
++    int res = avcodec_send_packet(codec, pkt);
++    AVFrame *frame = av_frame_alloc();
++    while (res >= 0) {
++        res = avcodec_receive_frame(codec, frame);
++        if (res == AVERROR_EOF) {
++            break;
++        } else if (res == AVERROR(EAGAIN)) {
++            res = avcodec_send_packet(codec, pkt);
++            try_count++;
++            if (try_count >= 20) {
++                break;
++            }
++            continue;
++        } else if (res < 0) {
++            break;
++        }
++        
++        av_packet_unref(pkt);
++        
++        if (is_manual_pts_control) {
++            double pts_diff = *last_org_stream_pts == 0 ? 1 : fmax(frame->pts, 1) / fmax(*last_org_stream_pts, 1);
++            *current_stream_pts += (int64_t)((double)manual_pts_step * pts_diff);
++            *last_org_stream_pts = frame->pts;
++            frame->pts = *current_stream_pts;
++        }
++        
++        return std::make_tuple(frame, frame->pts);
++    }
++    
++    av_frame_free(&frame);
++    av_packet_unref(pkt);
++    return std::make_tuple(nullptr, NULL);
++}
++
++void FFmpegDecoderImpl::FlushCacheBuffers(std::queue<std::unique_ptr<Frame>>* audio_cache_buffer,
++                                          std::queue<std::unique_ptr<Frame>>* video_cache_buffer,
++                                          std::function<void(std::vector<std::unique_ptr<Frame>>* frames)> callback) {
++    std::vector<std::unique_ptr<Frame>> frames;
++    while (!audio_cache_buffer->empty()) {
++        frames.push_back(std::move(audio_cache_buffer->front()));
++        audio_cache_buffer->pop();
++    }
++    
++    while (!video_cache_buffer->empty()) {
++        frames.push_back(std::move(video_cache_buffer->front()));
++        video_cache_buffer->pop();
++    }
++    
++    callback(&frames);
++}
+diff --git a/submodules/HLSObjcModule/hlsobjcmodule/HLSObjccppModule/Sources/FFMpegDecoder.h b/submodules/HLSObjcModule/hlsobjcmodule/HLSObjccppModule/Sources/FFMpegDecoder.h
+new file mode 100644
+index 0000000000..61ad9b9ca9
+--- /dev/null
++++ b/submodules/HLSObjcModule/hlsobjcmodule/HLSObjccppModule/Sources/FFMpegDecoder.h
+@@ -0,0 +1,66 @@
++//
++//  FFMpegVideoDecoder.hpp
++//  TGHLSPlayer
++//
++//  Created byVlad on 12.10.2024.
++//
++#ifndef FFMpegDecoder_h
++#define FFMpegDecoder_h
++
++#include <functional>
++
++extern "C" {
++#include <libavutil/frame.h>
++#include <libavformat/avformat.h>
++}
++
++class FFmpegDecoder {
++public:
++    typedef struct Stream {
++        int64_t start_time;
++        AVRational time_base;
++        AVCodecParameters *codecpar;
++        
++        Stream(const AVStream* srcStream) {
++            start_time = srcStream->start_time;
++            time_base = srcStream->time_base;
++            
++            // Копируем codecpar
++            codecpar = avcodec_parameters_alloc();
++            if (avcodec_parameters_copy(codecpar, srcStream->codecpar) < 0) {
++                avcodec_parameters_free(&codecpar);
++                codecpar = nullptr;
++            }
++        }
++        
++        ~Stream() {
++            avcodec_parameters_free(&codecpar);
++        }
++    } Stream;
++    
++    typedef struct Frame {
++        std::unique_ptr<Stream> stream;
++        AVFrame* frame;
++        
++        Frame(AVFrame* av_frame, const AVStream *av_stream) {
++            stream = std::make_unique<Stream>(av_stream);
++            frame = av_frame;
++        }
++        
++        ~Frame() {
++            av_frame_free(&frame);
++            frame = nullptr;
++        }
++    } Frame;
++    
++    typedef struct Metadata {
++        std::vector<std::unique_ptr<Stream>> streams;
++        int64_t initialPts;
++    } Info;
++    
++    static FFmpegDecoder* create();
++    virtual Metadata* getMetadata(const char* inputFile) = 0;
++    virtual void Decode(const char* inputFile, int64_t preferred_init_pts, bool *stop, int64_t seekTimestamp, std::function<void(std::vector<std::unique_ptr<Frame>>* frames)> callback) = 0;
++};
++
++#endif /* FFMpegDecoder_h */
+diff --git a/submodules/HLSObjcModule/hlsobjcmodule/HLSObjccppModule/Sources/HLSDecoder.mm b/submodules/HLSObjcModule/hlsobjcmodule/HLSObjccppModule/Sources/HLSDecoder.mm
+new file mode 100644
+index 0000000000..24d05d7382
+--- /dev/null
++++ b/submodules/HLSObjcModule/hlsobjcmodule/HLSObjccppModule/Sources/HLSDecoder.mm
+@@ -0,0 +1,282 @@
++//
++//  HLSDecoder.m
++//  Telegram
++//
++//  Created byVlad on 21.10.2024.
++//
++
++
++#import <Foundation/Foundation.h>
++#import <CoreGraphics/CoreGraphics.h>
++#import "FFMpegDecoder.h"
++#import <AVFAudio/AVFAudio.h>
++#import <HLSObjcModule/HLSDecoderAudioFrame.h>
++#import <HLSObjcModule/HLSDecoderVideoFrame.h>
++#import <HLSObjcModule/HLSDecoder.h>
++#import <HLSObjcModule/HLSDecoderMetadata.h>
++#import <HLSObjcModule/HLSDecoderFrame.h>
++#import <Metal/Metal.h>
++
++extern "C" {
++#include <libavformat/avformat.h>
++#include <libavcodec/avcodec.h>
++#include <libavutil/imgutils.h>
++#include <libavutil/opt.h>
++#include <libavutil/time.h>
++#include <libavutil/pixfmt.h>
++#include <libswscale/swscale.h>
++#include <libswresample/swresample.h>
++#include <libavutil/frame.h>
++#include <libavutil/mathematics.h>
++}
++
++HLSDecoderStreamType ToHLSDecoderStreamTypeFromAVMediaType(AVMediaType avMediaType) {
++    switch (avMediaType) {
++        case AVMEDIA_TYPE_VIDEO:
++            return HLSDecoderStreamTypeVideo;
++        case AVMEDIA_TYPE_AUDIO:
++            return HLSDecoderStreamTypeAudio;
++        default:
++            return HLSDecoderStreamTypeVideo;
++    }
++}
++
++AVAudioPCMBuffer* AVFrameToAVAudioPCMBuffer(AVFrame *frame) {
++    AVAudioFormat *audioFormat = [[AVAudioFormat alloc] initWithCommonFormat:AVAudioPCMFormatFloat32
++                                                                  sampleRate:frame->sample_rate
++                                                                    channels:2
++                                                                 interleaved:NO];
++    SwrContext *swrCtx = NULL;
++    
++    swrCtx = swr_alloc_set_opts(NULL,
++                                AV_CH_LAYOUT_STEREO,
++                                AV_SAMPLE_FMT_FLTP,
++                                frame->sample_rate,
++                                frame->channel_layout,
++                                (AVSampleFormat)frame->format,
++                                frame->sample_rate,
++                                0,
++                                NULL);
++    
++    swr_init(swrCtx);
++    int output_linesize;
++    int output_samples = (int)av_rescale_rnd(swr_get_delay(swrCtx, frame->sample_rate) + frame->nb_samples,
++                                             audioFormat.sampleRate, frame->sample_rate, AV_ROUND_UP);
++    
++    uint8_t **convertedData = nullptr;
++    av_samples_alloc_array_and_samples(&convertedData, &output_linesize,
++                                       audioFormat.channelCount,
++                                       output_samples,
++                                       AV_SAMPLE_FMT_FLTP, 0);
++    
++    int samples_converted = swr_convert(swrCtx, convertedData, output_samples,
++                                        (const uint8_t **)frame->extended_data, frame->nb_samples);
++    
++    AVAudioPCMBuffer *pcmBuffer = [[AVAudioPCMBuffer alloc]
++                                   initWithPCMFormat:audioFormat
++                                   frameCapacity:(AVAudioFrameCount)samples_converted];
++    pcmBuffer.frameLength = pcmBuffer.frameCapacity;
++    memcpy(pcmBuffer.floatChannelData[0], convertedData[0], samples_converted * sizeof(float));
++    
++    swr_free(&swrCtx);
++    av_freep(&convertedData[0]);
++    av_freep(&convertedData);
++    
++    return pcmBuffer;
++}
++
++id<MTLTexture> AVFrameToMTLModel(AVFrame *frame, id<MTLDevice> mtlDevice) {
++    @autoreleasepool {
++        int width = frame->width;
++        int height = frame->height;
++        int rgbBufferSize = av_image_get_buffer_size(AV_PIX_FMT_RGB32, width, height, 1);
++        uint8_t *rgbData[4];
++        int rgbLinesize[4];
++        uint8_t *rgbBuffer = (uint8_t *)av_malloc(rgbBufferSize);
++        
++        av_image_fill_arrays(rgbData, rgbLinesize, rgbBuffer, AV_PIX_FMT_RGB32, width, height, 1);
++        
++        SwsContext *swsCtx = sws_getContext(width, height, AV_PIX_FMT_YUV420P,
++                                            width, height, AV_PIX_FMT_RGB32,
++                                            SWS_FAST_BILINEAR,
++                                            NULL, NULL, NULL);
++        sws_scale(swsCtx,
++                  frame->data,
++                  frame->linesize,
++                  0,
++                  frame->height,
++                  rgbData, rgbLinesize);
++        
++        MTLTextureDescriptor *textureDescriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm width:width height:height mipmapped:NO];
++        id<MTLTexture> texture = [mtlDevice newTextureWithDescriptor: textureDescriptor];
++        MTLRegion region = MTLRegionMake2D(0, 0, width, height);
++        [texture replaceRegion:region mipmapLevel:0 withBytes:rgbData[0] bytesPerRow:rgbLinesize[0]];
++        
++        sws_freeContext(swsCtx);
++        av_free(rgbBuffer);
++        rgbBuffer = NULL;
++        frame = NULL;
++        return texture;
++    }
++}
++
++CGImageRef AVFrameToCGImage(AVFrame *frame) {
++    @autoreleasepool {
++        int width = frame->width;
++        int height = frame->height;
++        int rgbBufferSize = av_image_get_buffer_size(AV_PIX_FMT_RGB32, width, height, 1);
++        uint8_t *rgbData[4];
++        int rgbLinesize[4];
++        uint8_t *rgbBuffer = (uint8_t *)av_malloc(rgbBufferSize);
++        
++        av_image_fill_arrays(rgbData, rgbLinesize, rgbBuffer, AV_PIX_FMT_RGB32, width, height, 1);
++        
++        SwsContext *swsCtx = sws_getContext(width, height, AV_PIX_FMT_YUV420P,
++                                            width, height, AV_PIX_FMT_RGB32,
++                                            SWS_FAST_BILINEAR,
++                                            NULL, NULL, NULL);
++        
++        if (!swsCtx) {
++            return NULL;
++        }
++        
++        sws_scale(swsCtx,
++                  frame->data,
++                  frame->linesize,
++                  0,
++                  frame->height,
++                  rgbData, rgbLinesize);
++        
++        CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
++        CGContextRef context = CGBitmapContextCreate(rgbData[0],
++                                                     width,
++                                                     height,
++                                                     8,
++                                                     rgbLinesize[0],
++                                                     colorSpace,
++                                                     kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Little);
++        
++        if (!context) {
++            av_free(rgbBuffer);
++            av_frame_free(&frame);
++            CGColorSpaceRelease(colorSpace);
++            return NULL;
++        }
++        
++        CGImageRef cgImage = CGBitmapContextCreateImage(context);
++        
++        CGContextRelease(context);
++        CGColorSpaceRelease(colorSpace);
++        sws_freeContext(swsCtx);
++        av_free(rgbBuffer);
++        rgbBuffer = NULL;
++        frame = NULL;
++        return cgImage;
++    }
++}
++
++@implementation HLSDecoder {
++    FFmpegDecoder *_decoder;
++}
++
++- (instancetype _Nonnull)initWithDevice:(id<MTLDevice> _Nonnull)mtlDevice {
++    if (self = [super init]) {
++        _mtlDevice = mtlDevice;
++    }
++    
++    return self;
++}
++
++- (nullable HLSDecoderMetadata *)getMetadataWithFileName:(NSString *)fileName {
++    if (_decoder == NULL) {
++        _decoder = FFmpegDecoder::create();
++    }
++    
++    FFmpegDecoder::Metadata *metadata = _decoder->getMetadata([fileName UTF8String]);
++    NSMutableArray<HLSDecoderStream *> *streams = [NSMutableArray arrayWithCapacity:metadata->streams.size()];
++    int initialPts = 0;
++    
++    for(int i = 0; i < metadata->streams.size(); i++) {
++        FFmpegDecoder::Stream *md_steram = metadata->streams[i].get();
++        HLSDecoderStream *stream = [[HLSDecoderStream alloc] initWithType:ToHLSDecoderStreamTypeFromAVMediaType(md_steram->codecpar->codec_type)
++                                                                startTime:(int)md_steram->start_time
++                                                                      num:md_steram->time_base.num
++                                                                      den:md_steram->time_base.den];
++        initialPts = (int)md_steram->start_time;
++        metadata->streams.pop_back();
++        [streams addObject:stream];
++    }
++    
++    delete metadata;
++    return [[HLSDecoderMetadata alloc] initWithStreams:streams initialPts:initialPts];
++}
++
++- (void)decodeWithFileName:(NSString *)fileName
++          preferredInitPts:(int)preferredInitPts
++             seekTimestamp:(int)seekTimestamp
++                segmentUid:(NSUUID *)segmentUid
++                shouldStop:(HLSDecoderStopBlock)shouldStop
++                completion:(HLSDecoderCallBack)completion {
++    if (_decoder == NULL) {
++        _decoder = FFmpegDecoder::create();
++    }
++    
++    int chunkSize = 15;
++    __block bool stop = false;
++    auto cppCallback = ^(std::vector<std::unique_ptr<FFmpegDecoder::Frame>> *frames) {
++        stop = shouldStop();
++        
++        if (frames->size() <= 0 || stop) {
++            completion([NSArray new]);
++            return;
++        }
++        
++        NSMutableArray<id<HLSDecoderFrame>> *outputFrames = [NSMutableArray arrayWithCapacity:chunkSize];
++        int framesCount = (unsigned int)frames->size();
++        
++        for (int i = 0; i < framesCount; i++) {
++            @autoreleasepool {
++                FFmpegDecoder::Frame *frame = frames->at(i).get();
++                FFmpegDecoder::Stream *frameStream = frame->stream.get();
++                
++                HLSDecoderStream *stream = [[HLSDecoderStream alloc] initWithType:(HLSDecoderStreamType)frameStream->codecpar->codec_type
++                                                                        startTime:(int)frameStream->start_time
++                                                                              num:frameStream->time_base.num
++                                                                              den:frameStream->time_base.den];
++                
++                switch (frame->stream->codecpar->codec_type) {
++                    case AVMEDIA_TYPE_VIDEO: {
++                        HLSDecoderVideoFrame *videoFrame = [[HLSDecoderVideoFrame alloc] initWithSegmentUid:segmentUid
++                                                                                                     stream:stream
++                                                                                                        pts:frame->frame->pts
++                                                                                                   duration:(int)frame->frame->pkt_duration
++                                                                                                    cgImage:AVFrameToMTLModel(frame->frame, self.mtlDevice)];
++                        [outputFrames addObject:videoFrame];
++                        break;
++                    }
++                    case AVMEDIA_TYPE_AUDIO: {
++                        HLSDecoderAudioFrame *audioFrame = [[HLSDecoderAudioFrame alloc] initWithSegmentUid:segmentUid
++                                                                                                     stream:stream
++                                                                                                        pts:frame->frame->pts
++                                                                                                   duration:(int)frame->frame->pkt_duration
++                                                                                                  pcmBuffer:AVFrameToAVAudioPCMBuffer(frame->frame)];
++                        [outputFrames addObject:audioFrame];
++                        break;
++                    }
++                    default:
++                        break;
++                }
++                
++                stop = shouldStop();
++                if (!stop && (outputFrames.count % chunkSize == 0 || i >= framesCount - 1)) {
++                    completion(outputFrames);
++                    [outputFrames removeAllObjects];
++                }
++            }
++        }
++    };
++    
++    _decoder->Decode([fileName UTF8String], preferredInitPts, &stop, seekTimestamp, cppCallback);
++}
++
++@end
+diff --git a/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderAudioFrame.h b/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderAudioFrame.h
+new file mode 100644
+index 0000000000..acb4b6538a
+--- /dev/null
++++ b/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderAudioFrame.h
+@@ -0,0 +1,31 @@
++//
++//  HLSDecoderAudioFrame.h
++//  Telegram
++//
++//  Created byVlad on 21.10.2024.
++//
++
++#ifndef HLSDecoderAudioFrame_h
++#define HLSDecoderAudioFrame_h
++
++#import <Foundation/Foundation.h>
++#import <AVFAudio/AVFAudio.h>
++#import <HLSObjcModule/HLSDecoderFrame.h>
++
++@interface HLSDecoderAudioFrame: NSObject<HLSDecoderFrame>
++
++@property (nonatomic, readonly, nonnull) NSUUID *segmentUid;
++@property (nonatomic, readonly, nonnull) HLSDecoderStream *stream;
++@property (nonatomic, readonly) double pts;
++@property (nonatomic, readonly) int duration;
++@property (nonatomic, readonly, nullable) AVAudioPCMBuffer *pcmBuffer;
++
++- (instancetype _Nullable )initWithSegmentUid:(NSUUID * _Nonnull)segmentUid
++                                       stream:(HLSDecoderStream * _Nonnull )stream
++                                          pts:(double)pts
++                                     duration:(int)duration
++                                    pcmBuffer:(AVAudioPCMBuffer * _Nullable)pcmBuffer;
++
++@end
++
++#endif /* HLSDecoderAudioFrame_h */
+diff --git a/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderFrame.h b/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderFrame.h
+new file mode 100644
+index 0000000000..03a4e0a57d
+--- /dev/null
++++ b/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderFrame.h
+@@ -0,0 +1,24 @@
++//
++//  HLSDecoderFrame.h
++//  Telegram
++//
++//  Created byVlad on 21.10.2024.
++//
++
++#ifndef HLSDecoderFrame_h
++#define HLSDecoderFrame_h
++
++#import <Foundation/Foundation.h>
++#import <HLSObjcModule/HLSDecoderStream.h>
++
++@protocol HLSDecoderFrame<NSObject>
++
++@required
++@property (nonatomic, readonly) NSUUID *segmentUid;
++@property (nonatomic, readonly) HLSDecoderStream *stream;
++@property (nonatomic, readonly) double pts;
++@property (nonatomic, readonly) int duration;
++
++@end
++
++#endif /* HLSDecoderFrame_h */
+diff --git a/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderMetadata.h b/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderMetadata.h
+new file mode 100644
+index 0000000000..c5a27a16bf
+--- /dev/null
++++ b/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderMetadata.h
+@@ -0,0 +1,22 @@
++//
++//  HLSDecoderMetadata.h
++//  Telegram
++//
++//  Created byVlad on 25.10.2024.
++//
++
++#ifndef HLSDecoderMetadata_h
++#define HLSDecoderMetadata_h
++
++#import <HLSObjcModule/HLSDecoderFrame.h>
++
++@interface HLSDecoderMetadata: NSObject
++
++@property (nonatomic, readonly, nonnull) NSArray<HLSDecoderStream *> *streams;
++@property (nonatomic, readonly) int64_t initialPts;
++
++- (_Nullable instancetype)initWithStreams:(NSArray<HLSDecoderStream *> * _Nullable )streams initialPts:(int64_t)initialPts;
++
++@end
++
++#endif /* HLSDecoderMetadata_h */
+diff --git a/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderStream.h b/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderStream.h
+new file mode 100644
+index 0000000000..1aee9df096
+--- /dev/null
++++ b/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderStream.h
+@@ -0,0 +1,28 @@
++//
++//  HLSDecoderStream.h
++//  Telegram
++//
++//  Created byVlad on 25.10.2024.
++//
++
++#ifndef HLSDecoderStream_h
++#define HLSDecoderStream_h
++
++typedef NS_ENUM(NSInteger, HLSDecoderStreamType) {
++    HLSDecoderStreamTypeUnknow = -1,
++    HLSDecoderStreamTypeVideo,
++    HLSDecoderStreamTypeAudio,
++};
++
++@interface HLSDecoderStream: NSObject
++
++@property (nonatomic, readonly) HLSDecoderStreamType type;
++@property (nonatomic, readonly) int startTime;
++@property (nonatomic, readonly) int num;
++@property (nonatomic, readonly) int den;
++
++- (instancetype)initWithType:(HLSDecoderStreamType)type startTime:(int)startTime num:(int)num den:(int)den;
++
++@end
++
++#endif /* HLSDecoderStream_h */
+diff --git a/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderVideoFrame.h b/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderVideoFrame.h
+new file mode 100644
+index 0000000000..66c1a73780
+--- /dev/null
++++ b/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSDecoderVideoFrame.h
+@@ -0,0 +1,31 @@
++//
++//  HLSDecoderVideoFrame.h
++//  Telegram
++//
++//  Created byVlad on 21.10.2024.
++//
++
++#ifndef HLSDecoderVideoFrame_h
++#define HLSDecoderVideoFrame_h
++
++#import <Foundation/Foundation.h>
++#import <Metal/Metal.h>
++#import <HLSObjcModule/HLSDecoderFrame.h>
++
++@interface HLSDecoderVideoFrame: NSObject<HLSDecoderFrame>
++
++@property (nonatomic, readonly, nonnull) NSUUID *segmentUid;
++@property (nonatomic, readonly, nonnull) HLSDecoderStream *stream;
++@property (nonatomic, readonly) double pts;
++@property (nonatomic, readonly) int duration;
++@property (nonatomic, readonly, nullable) id<MTLTexture> texture;
++
++- (instancetype _Nullable)initWithSegmentUid:(NSUUID * _Nullable)segmentUid
++                            stream:(HLSDecoderStream * _Nullable)stream
++                               pts:(double)pts
++                          duration:(int)duration
++                           cgImage:(id<MTLTexture> _Nullable)texture;
++
++@end
++
++#endif /* HLSDecoderVideoFrame_h */
+diff --git a/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSObjcModule.h b/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSObjcModule.h
+new file mode 100644
+index 0000000000..30f4ba82f6
+--- /dev/null
++++ b/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSObjcModule.h
+@@ -0,0 +1,8 @@
++//
++//  HLSCModule.h
++//  Telegram
++//
++//  Created byVlad on 21.10.2024.
++//
++
++//#import <HLSObjccppModule/HLSDecoder.h>
+diff --git a/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSPlayerDrawLayer.h b/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSPlayerDrawLayer.h
+new file mode 100644
+index 0000000000..34b5e37602
+--- /dev/null
++++ b/submodules/HLSObjcModule/hlsobjcmodule/PublicHeaders/HLSObjcModule/HLSPlayerDrawLayer.h
+@@ -0,0 +1,19 @@
++//
++//  HLSPlayerDrawLayer.h
++//  HLSObjcModule
++//
++//  Created byVlad on 22.10.2024.
++//
++
++#import <QuartzCore/QuartzCore.h>
++#import <HLSObjcModule/HLSDecoderVideoFrame.h>
++
++NS_ASSUME_NONNULL_BEGIN
++
++@interface HLSPlayerDrawLayer: CALayer
++
++- (void)drawFrame:(HLSDecoderVideoFrame *)_frame;
++
++@end
++
++NS_ASSUME_NONNULL_END
+diff --git a/submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSDecoderAudioFrame.m b/submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSDecoderAudioFrame.m
+new file mode 100644
+index 0000000000..b6a8c7fd08
+--- /dev/null
++++ b/submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSDecoderAudioFrame.m
+@@ -0,0 +1,28 @@
++//
++//  HLSDecoderAudioFrame.m
++//  Telegram
++//
++//  Created byVlad on 21.10.2024.
++//
++
++#import <HLSObjcModule/HLSDecoderAudioFrame.h>
++
++@implementation HLSDecoderAudioFrame
++
++- (instancetype)initWithSegmentUid:(NSUUID *)segmentUid
++                            stream:(HLSDecoderStream *)stream
++                               pts:(double)pts
++                          duration:(int)duration
++                         pcmBuffer:(AVAudioPCMBuffer *)pcmBuffer {
++    if (self = [super init]) {
++        _segmentUid = segmentUid;
++        _stream = stream;
++        _pts = pts;
++        _duration = duration;
++        _pcmBuffer = pcmBuffer;
++    }
++    
++    return self;
++}
++
++@end
+diff --git a/submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSDecoderMetadata.m b/submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSDecoderMetadata.m
+new file mode 100644
+index 0000000000..9317a55781
+--- /dev/null
++++ b/submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSDecoderMetadata.m
+@@ -0,0 +1,22 @@
++//
++//  HLSDecoderMetadata.m
++//  HLSObjcModule
++//
++//  Created byVlad on 25.10.2024.
++//
++
++#import <Foundation/Foundation.h>
++#import <HLSObjcModule/HLSDecoderMetadata.h>
++
++@implementation HLSDecoderMetadata
++
++- (instancetype)initWithStreams:(NSArray<HLSDecoderStream *> *)streams initialPts:(int64_t)initialPts {
++    if (self = [super init]) {
++        _streams = streams;
++        _initialPts = initialPts;
++    }
++    
++    return self;
++}
++
++@end
+diff --git a/submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSDecoderStream.m b/submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSDecoderStream.m
+new file mode 100644
+index 0000000000..88191fe7c6
+--- /dev/null
++++ b/submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSDecoderStream.m
+@@ -0,0 +1,25 @@
++//
++//  HLSDecoderStream.m
++//  HLSObjcModule
++//
++//  Created byVlad on 25.10.2024.
++//
++
++#import <Foundation/Foundation.h>
++#import <HLSObjcModule/HLSDecoderStream.h>
++
++@implementation HLSDecoderStream
++
++- (instancetype)initWithType:(HLSDecoderStreamType)type startTime:(int)startTime num:(int)num den:(int)den {
++    if (self = [super init]) {
++        _type = type;
++        _startTime = startTime;
++        _num = num;
++        _den = den;
++    }
++    
++    return self;
++}
++
++@end
++
+diff --git a/submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSDecoderVideoFrame.m b/submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSDecoderVideoFrame.m
+new file mode 100644
+index 0000000000..303fb2a493
+--- /dev/null
++++ b/submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSDecoderVideoFrame.m
+@@ -0,0 +1,29 @@
++//
++//  HLSDecoderVideoFrame.m
++//  Telegram
++//
++//  Created byVlad on 21.10.2024.
++//
++
++#import <HLSObjcModule/HLSDecoderVideoFrame.h>
++#import <HLSObjcModule/HLSDecoderStream.h>
++
++@implementation HLSDecoderVideoFrame
++
++- (instancetype)initWithSegmentUid:(NSUUID *)segmentUid
++                            stream:(HLSDecoderStream *)stream
++                               pts:(double)pts
++                          duration:(int)duration
++                           cgImage:(id<MTLTexture> _Nullable)texture {
++    if (self = [super init]) {
++        _segmentUid = segmentUid;
++        _stream = stream;
++        _pts = pts;
++        _duration = duration;
++        _texture = texture;
++    }
++    
++    return self;
++}
++
++@end
+diff --git a/submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSPlayerDrawLayer.m b/submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSPlayerDrawLayer.m
+new file mode 100644
+index 0000000000..964f593af4
+--- /dev/null
++++ b/submodules/HLSObjcModule/hlsobjcmodule/Sources/HLSPlayerDrawLayer.m
+@@ -0,0 +1,50 @@
++//
++//  HLSPlayerDrawLayer.m
++//  HLSObjcModule
++//
++//  Created byVlad on 22.10.2024.
++//
++
++#import <HLSObjcModule/HLSPlayerDrawLayer.h>
++
++@implementation HLSPlayerDrawLayer {
++    HLSDecoderVideoFrame *frame;
++}
++
++- (void)drawFrame:(HLSDecoderVideoFrame *)_frame {
++    if (frame != NULL) {
++        frame = NULL;
++    }
++    
++    frame = _frame;
++    [self setNeedsDisplay];
++}
++
++// I know taht draw works on CPU but I'm not really familar with Metal or OpenGL... actually I've tried 
++- (void)drawCGImage:(CGImageRef)image inContext:(CGContextRef)context {
++    if (image != NULL && context != NULL) {
++        CGSize originalSize = CGSizeMake(CGImageGetWidth(image), CGImageGetHeight(image));
++        CGFloat widthRatio = self.bounds.size.width / originalSize.width;
++        CGFloat heightRatio = self.bounds.size.height / originalSize.height;
++        CGFloat scaleFactor = MIN(widthRatio, heightRatio);
++        CGSize newSize = CGSizeMake(originalSize.width * scaleFactor, originalSize.height * scaleFactor);
++        
++        CGContextSaveGState(context);
++        CGContextTranslateCTM(context, 0, newSize.height);
++        CGContextScaleCTM(context, 1.0, -1.0);
++        
++        CGRect drawingRect = CGRectMake((self.bounds.size.width - newSize.width) * 0.5,
++                                        -(self.bounds.size.height - newSize.height) * 0.5,
++                                        newSize.width, newSize.height);
++        CGContextDrawImage(context, drawingRect, image);
++    }
++}
++
++//- (void)drawInContext:(CGContextRef)context {
++//    @autoreleasepool {
++//        [self drawCGImage:frame.cgImage inContext:context];
++//        frame = NULL;
++//    }
++//}
++
++@end
+diff --git a/submodules/TelegramCore/Sources/SyncCore/SyncCore_TelegramMediaFile.swift b/submodules/TelegramCore/Sources/SyncCore/SyncCore_TelegramMediaFile.swift
+index 4e0c73441d..df716c7326 100644
+--- a/submodules/TelegramCore/Sources/SyncCore/SyncCore_TelegramMediaFile.swift
++++ b/submodules/TelegramCore/Sources/SyncCore/SyncCore_TelegramMediaFile.swift
+@@ -445,7 +445,7 @@ public final class TelegramMediaFile: Media, Equatable, Codable {
+     public let mimeType: String
+     public let size: Int64?
+     public let attributes: [TelegramMediaFileAttribute]
+-    public let alternativeRepresentations: [Media]
++    public var alternativeRepresentations: [Media]
+     public let peerIds: [PeerId] = []
+     
+     public var id: MediaId? {
+diff --git a/submodules/TelegramUniversalVideoContent/BUILD b/submodules/TelegramUniversalVideoContent/BUILD
+index b705ae876b..fe335587d3 100644
+--- a/submodules/TelegramUniversalVideoContent/BUILD
++++ b/submodules/TelegramUniversalVideoContent/BUILD
+@@ -1,14 +1,58 @@
+ load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library")
++load(
++    "@build_bazel_rules_apple//apple:resources.bzl",
++    "apple_resource_bundle",
++    "apple_resource_group",
++)
++load("//build-system/bazel-utils:plist_fragment.bzl",
++    "plist_fragment",
++)
++
++filegroup(
++    name = "TelegramUniversalVideoContentResources",
++    srcs = glob([
++        "Resources/**/*.*",
++    ]),
++    visibility = ["//visibility:public"],
++)
++
++plist_fragment(
++    name = "TelegramUniversalVideoContentInfoPlist",
++    extension = "plist",
++    template =
++    """
++    <key>CFBundleIdentifier</key>
++    <string>org.telegram.TelegramUniversalVideoContent</string>
++    <key>CFBundleDevelopmentRegion</key>
++    <string>en</string>
++    <key>CFBundleName</key>
++    <string>TelegramUniversalVideoContent</string>
++    """
++)
++
++apple_resource_bundle(
++    name = "TelegramUniversalVideoContentBundle",
++    infoplists = [
++        ":TelegramUniversalVideoContentInfoPlist",
++    ],
++    resources = [
++        ":TelegramUniversalVideoContentResources",
++    ],
++)
+ 
+ swift_library(
+     name = "TelegramUniversalVideoContent",
+     module_name = "TelegramUniversalVideoContent",
+     srcs = glob([
+         "Sources/**/*.swift",
++        "Sources/**/*.swift",
+     ]),
+     copts = [
+         "-warnings-as-errors",
+     ],
++    data = [
++        ":TelegramUniversalVideoContentBundle",
++    ],
+     deps = [
+         "//submodules/AsyncDisplayKit:AsyncDisplayKit",
+         "//submodules/Display:Display",
+@@ -25,6 +69,7 @@ swift_library(
+         "//submodules/Utils/RangeSet:RangeSet",
+         "//submodules/TelegramVoip",
+         "//submodules/ManagedFile",
++        "//submodules/HLSObjcModule:HLSObjcModule",
+     ],
+     visibility = [
+         "//visibility:public",
+diff --git a/submodules/TelegramUniversalVideoContent/Resources/HLSVideo.metal b/submodules/TelegramUniversalVideoContent/Resources/HLSVideo.metal
+new file mode 100644
+index 0000000000..1ddeeac6fd
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Resources/HLSVideo.metal
+@@ -0,0 +1,30 @@
++//
++//  HLSVideo.metal
++//  TelegramUniversalVideoContent
++//
++//  Created byVlad on 27.10.2024.
++//
++
++#include <metal_stdlib>
++using namespace metal;
++
++struct VertexOut {
++    float4 position [[ position ]];
++    float2 texCoord;
++};
++
++vertex VertexOut hls_vertex(uint vertexID [[ vertex_id ]],
++                           constant float4 *vertexArray [[ buffer(0) ]],
++                           constant float2 *texCoords [[ buffer(1) ]],
++                           constant float4x4 &transformMatrix [[ buffer(2) ]]) {
++    VertexOut out;
++    out.position = vertexArray[vertexID];
++    out.texCoord = texCoords[vertexID]; // todo: transfor need?
++    return out;
++}
++
++fragment float4 hls_fragment(texture2d<float> tex [[ texture(0) ]],
++                            sampler texSampler [[ sampler(0) ]],
++                            VertexOut in [[ stage_in ]]) {
++    return tex.sample(texSampler, in.texCoord);
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/DataLoader/HLSDataLoader.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/DataLoader/HLSDataLoader.swift
+new file mode 100644
+index 0000000000..309f8bd44a
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/DataLoader/HLSDataLoader.swift
+@@ -0,0 +1,177 @@
++//
++//  HLSDataLoader.swift
++//  Telegram
++//
++//  Created byVlad on 20.10.2024.
++//
++
++import Foundation
++
++final class HLSDataLoader {
++    
++    private let url: HLSUrl
++    private var dataTasks = [AnyHashable: URLSessionTask]()
++    private let maxRetryCount: UInt8 = 15
++    private var initData: Data?
++    
++    init(url: URL) {
++        self.url = HLSUrl(manifesUrl: url)
++    }
++    
++    func downloadManifest(completion:  HLSQClosure<HLSManifest?>) {
++        var requestTryIndex = 0
++        let taksId = url.manifestUrl.hashValue
++        
++        let requestTask = HLSRequestManager.request(url: url.manifestUrl) { [weak self] result in
++            guard let self else {
++                return
++            }
++            
++            dataTasks.removeValue(forKey: taksId)
++            
++            guard let result else {
++                // Heap hea heap too lazy
++                requestTryIndex += 1
++                if self.maxRetryCount >= requestTryIndex {
++                    downloadManifest(completion: completion)
++                } else {
++                    completion.perform(nil)
++                }
++                return
++            }
++            
++            do {
++                guard let manifest: HLSManifest = try HLSDataParser<HLSManifest.CodingKeys>.makeObject(from: result) else {
++                    completion.perform(nil)
++                    return
++                }
++                
++                completion.perform(manifest)
++            } catch {
++                completion.perform(nil)
++            }
++        }
++        
++        dataTasks[taksId] = requestTask
++        requestTask.resume()
++    }
++    
++    func downlod(stream: HLSManifest.Stream, completion: HLSQClosure<HLSStream?>) {
++        let requestUrl = url.streamUrl(streamPath: stream.uri)
++        let taksId = requestUrl.hashValue
++        var requestTryIndex = 0
++        
++        let request = HLSRequestManager.request(url: requestUrl) { [weak self] result in
++            guard let self else { return }
++            
++            self.dataTasks.removeValue(forKey: taksId)
++            
++            guard let result else {
++                requestTryIndex += 1
++                if self.maxRetryCount >= requestTryIndex {
++                    downlod(stream: stream, completion: completion)
++                } else {
++                    completion.perform(nil)
++                }
++                return
++            }
++            
++            do {
++                guard let stream: HLSStream = try HLSDataParser<HLSStream.CodingKeys>.makeObject(from: result) else {
++                    completion.perform(nil)
++                    return
++                }
++                
++                completion.perform(stream)
++            } catch {
++                completion.perform(nil)
++            }
++        }
++        
++        dataTasks[taksId] = request
++        request.resume()
++    }
++    
++    func download(segment: HLSStream.Segment, uri: String, isInitialSegment: Bool, completion: HLSQClosure<(HLSStream.Segment, Data?)>) {
++        let requestUrl = url.segmentUrl(uri: uri, segmentName: segment.name)
++        let taksId = requestUrl.hashValue
++        let headers: [String: String]
++        var requestTryIndex = 0
++        
++        if let byteRange = segment.byteRange {
++            headers = [
++                "Range": "bytes=\(byteRange[0])-\(byteRange[0] + byteRange[1] - 1)",
++                "Accept-Ranges": "bytes"
++            ]
++        } else {
++            headers = [:]
++        }
++        
++        let request = HLSRequestManager.requsrData(url: requestUrl, headers: headers) { [weak self] data in
++            guard let self else {
++                return
++            }
++            
++            self.dataTasks.removeValue(forKey: taksId)
++            
++            guard let data else {
++                // Heap hea heap too lazy
++                requestTryIndex += 1
++                if self.maxRetryCount >= requestTryIndex {
++                    download(segment: segment, uri: uri, isInitialSegment: isInitialSegment, completion: completion)
++                } else {
++                    completion.perform((segment, nil))
++                }
++                
++                return
++            }
++            
++            // )))))) yeap idk how correct use init data at FFMpeg
++            if let initData {
++                var combinedData = Data()
++                combinedData.append(initData)
++                combinedData.append(data)
++                completion.perform((segment, combinedData))
++            } else {
++                if isInitialSegment {
++                    self.initData = data
++                }
++                completion.perform((segment, data))
++            }
++        }
++        
++        dataTasks[taksId] = request
++        request.resume()
++    }
++    
++}
++
++extension HLSDataLoader {
++    
++    private struct HLSUrl {
++        
++        let baseUrl: URL
++        
++        var manifestUrl: URL {
++            return baseUrl.appendingPathComponent(manifestPath, isDirectory: false)
++        }
++        
++        private let manifestPath: String
++        
++        init(manifesUrl: URL) {
++            self.manifestPath = manifesUrl.lastPathComponent
++            self.baseUrl = manifesUrl.deletingLastPathComponent()
++        }
++        
++        func streamUrl(streamPath: String) -> URL {
++            return baseUrl.appendingPathComponent(streamPath, isDirectory: false)
++        }
++        
++        func segmentUrl(uri: String, segmentName: String) -> URL {
++            let streamPath = (uri as NSString).deletingLastPathComponent
++            return baseUrl.appendingPathComponent(streamPath, isDirectory: false).appendingPathComponent(segmentName, isDirectory: false)
++        }
++        
++    }
++    
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/DataLoader/HLSRequestManager.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/DataLoader/HLSRequestManager.swift
+new file mode 100644
+index 0000000000..b50f7ae433
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/DataLoader/HLSRequestManager.swift
+@@ -0,0 +1,68 @@
++//
++//  HLSRequestManager.swift
++//  Telegram
++//
++//  Created byVlad on 20.10.2024.
++//
++
++import Foundation
++
++final class HLSRequestManager {
++    
++    static func request(url: URL, completion: @escaping (String?) -> Void) -> URLSessionDataTask {
++        var urlRequest = URLRequest(url: url)
++        urlRequest.httpMethod = "GET"
++        
++        return URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
++            if let error {
++                print(error)
++                completion(nil)
++                return
++            }
++            
++            guard let statusCode = (response as? HTTPURLResponse)?.statusCode, (200..<300).contains(statusCode) else {
++                completion(nil)
++                return
++            }
++            
++            guard let data else {
++                completion(nil)
++                return
++            }
++            
++            let responseDataString = String(data: data, encoding: .utf8)
++            completion(responseDataString)
++        }
++    }
++    
++    static func requsrData(url: URL, headers: [String: String], completion: @escaping (Data?) -> Void) -> URLSessionDataTask {
++        var urlRequest = URLRequest(url: url)
++        urlRequest.httpMethod = "GET"
++        
++        headers.forEach {
++            urlRequest.setValue($0.value, forHTTPHeaderField: $0.key)
++        }
++        
++        print("Download: \(url): \(headers)")
++        return URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
++            if let error {
++                print(error)
++                completion(nil)
++                return
++            }
++            
++            guard let statusCode = (response as? HTTPURLResponse)?.statusCode, (200..<300).contains(statusCode) else {
++                completion(nil)
++                return
++            }
++            
++            guard let data else {
++                completion(nil)
++                return
++            }
++            
++            completion(data)
++        }
++    }
++    
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/HLSDataParser.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/HLSDataParser.swift
+new file mode 100644
+index 0000000000..3a4152e248
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/HLSDataParser.swift
+@@ -0,0 +1,67 @@
++//
++//  HLSDataParser.swift
++//  Telegram
++//
++//  Created byVlad on 20.10.2024.
++//
++
++import Foundation
++
++final class HLSDataParser<T: HLSParserEntity> {
++    
++    static func makeObject<O: Codable>(from string: String) throws -> O? {
++        let jsonDict = try Self.makeJson(from: string, pattern: T.entityRegex)
++        
++        guard let jsonData = try? JSONSerialization.data(withJSONObject: jsonDict) else {
++            return nil
++        }
++        
++        return try JSONDecoder().decode(O.self, from: jsonData)
++    }
++    
++    static func makeJson(from string: String, pattern: String) throws -> [T.RawValue: Any] {
++        var jsonResult = [T.RawValue: Any]()
++        
++        try string.regexMatches(pattern: pattern).forEach {
++            guard !$0.isEmpty else {
++                return
++            }
++            
++            let key: T?
++            let value: String?
++            
++            if let range = $0[safe: 1] {
++                key = T(rawValue: string.string(at: range) ?? "")
++            } else {
++                key = nil
++            }
++            
++            if let range = $0[safe: 2] {
++                value = string.string(at: range)
++            } else {
++                value = nil
++            }
++            
++            guard let key else {
++                return
++            }
++            
++            let object = try? key.valueType.caster.parse(string: value)
++            
++            if let object {
++                if let existObject = jsonResult[key.rawValue] {
++                    if var existArrayObject = existObject as? [Any] {
++                        existArrayObject.append(object)
++                        jsonResult[key.rawValue] = existArrayObject
++                    } else {
++                        jsonResult[key.rawValue] = [existObject, object]
++                    }
++                } else {
++                    jsonResult[key.rawValue] = key.valueType.isArrayObject ? [object] : object
++                }
++            }
++        }
++        
++        return jsonResult
++    }
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/HLSParserEntity.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/HLSParserEntity.swift
+new file mode 100644
+index 0000000000..b4209124c6
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/HLSParserEntity.swift
+@@ -0,0 +1,23 @@
++//
++//  HLSParseEntity.swift
++//  Telegram
++//
++//  Created byVlad on 20.10.2024.
++//
++
++import Foundation
++
++protocol HLSParserEntity: RawRepresentable, Hashable, Codable where RawValue == String {
++    
++    static var entityRegex: String { get }
++    var valueType: HLSParserEntityValueType { get }
++    
++    init?(rawValue: RawValue)
++    
++}
++
++protocol HLSParserEntityModel: Codable {
++    
++    associatedtype ParseKeys: HLSParserEntity
++    
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/HLSParserValueType.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/HLSParserValueType.swift
+new file mode 100644
+index 0000000000..79ed1cb0a8
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/HLSParserValueType.swift
+@@ -0,0 +1,69 @@
++//
++//  HLSParserValueType.swift
++//  Telegram
++//
++//  Created byVlad on 20.10.2024.
++//
++
++import Foundation
++
++enum HLSParserEntityValueType {
++    case string
++    case bool
++    case int
++    case float
++    case existFact
++    case custom(any HLSParserEntityValueMapper)
++    
++    var caster: any HLSParserEntityValueMapper {
++        switch self {
++        case .string:
++            return HLSParserSimpleValueTypeCaster<String> { value in
++                guard let value else {
++                    return nil
++                }
++                
++                return value.replacingOccurrences(of: "\"", with: "")
++            }
++        case .bool:
++            return HLSParserSimpleValueTypeCaster<Bool> { value in
++                guard let value else {
++                    return nil
++                }
++                
++                return ["YES": true, "NO": false][value]
++            }
++        case .int:
++            return HLSParserSimpleValueTypeCaster<Int> { value in
++                guard let value else {
++                    return nil
++                }
++                
++                return Int(value)
++            }
++        case .float:
++            return HLSParserSimpleValueTypeCaster<Float> { value in
++                guard let value else {
++                    return nil
++                }
++                
++                return Float(value)
++            }
++        case .existFact:
++            return HLSParserSimpleValueTypeCaster<Bool> { _ in
++                return true
++            }
++        case .custom(let caster):
++            return caster
++        }
++    }
++    
++    var isArrayObject: Bool {
++        switch self {
++        case .string, .bool, .int, .float, .existFact:
++            return false
++        case .custom(let caster):
++            return caster.isArrayObject
++        }
++    }
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/HLSValueMapper.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/HLSValueMapper.swift
+new file mode 100644
+index 0000000000..71ca7ae58a
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/HLSValueMapper.swift
+@@ -0,0 +1,163 @@
++//
++//  HLSValueMapper.swift
++//  Telegram
++//
++//  Created byVlad on 20.10.2024.
++//
++
++protocol HLSParserEntityValueMapper {
++    
++    associatedtype ReturnValue
++    
++    var isArrayObject: Bool { get }
++    func parse(string: String?) throws -> ReturnValue?
++    
++}
++
++final class HLSParserSimpleValueTypeCaster<T>: HLSParserEntityValueMapper {
++    
++    let isArrayObject: Bool = false
++    private var castBlock: (String?) -> T?
++    
++    init(castBlock: @escaping (String?) -> T?) {
++        self.castBlock = castBlock
++    }
++    
++    func parse(string: String?) throws -> T? {
++        return castBlock(string)
++    }
++    
++}
++
++final class HLSParserObjectValueTypeCaster<T: HLSParserEntity>: HLSParserEntityValueMapper {
++    
++    let isArrayObject: Bool
++    let pattern: String
++    
++    init(pattern: String, isArrayObject: Bool) {
++        self.isArrayObject = isArrayObject
++        self.pattern = pattern
++    }
++    
++    func parse(string: String?) throws -> [T.RawValue: Any]? {
++        guard let string else {
++            return nil
++        }
++        
++        return try? HLSDataParser<T>.makeJson(from: string, pattern: T.entityRegex)
++    }
++    
++}
++
++final class HLSParserManifestStreamObjectValueTypeCaster: HLSParserEntityValueMapper {
++    
++    let isArrayObject: Bool = true
++    
++    func parse(string: String?) throws -> [HLSManifest.Stream.CodingKeys.RawValue: Any]? {
++        guard let string else {
++            return nil
++        }
++        
++        let lines = string.split(separator: "\n")
++        
++        guard lines.count == 2 else {
++            print("ERROR: HLSParserManifestStreamObjectValueTypeCaster lines != 2")
++            
++            return nil
++        }
++        
++        guard
++            var mainParamStack: [HLSManifest.Stream.CodingKeys.RawValue: Any] = try? HLSDataParser<HLSManifest.Stream.CodingKeys>.makeJson(
++                from: String(lines.first!),
++                pattern: HLSManifest.Stream.CodingKeys.entityRegex
++            )
++        else {
++            print("ERROR: HLSParserManifestStreamObjectValueTypeCaster mainParamStack=nil")
++            return nil
++        }
++        
++        mainParamStack[HLSManifest.Stream.CodingKeys.uri.rawValue] = lines.last
++        
++        return mainParamStack
++    }
++    
++}
++
++final class HLSParserStreamSegmentObjectValueTypeCaster: HLSParserEntityValueMapper {
++    
++    let isArrayObject = true
++    
++    func parse(string: String?) throws -> [HLSStream.Segment.CodingKeys.RawValue: Any?]? {
++        guard let string else {
++            return nil
++        }
++        
++        var lines = string.split(separator: "\n").map {
++            return String($0).replacingOccurrences(of: ",", with: "")
++        }
++        
++        guard lines.count >= 2 else {
++            print("ERROR: HLSParserStreamSegmentObjectValueTypeCaster lines < 2")
++            
++            return nil
++        }
++        
++        // I'm ti.. so one more... it bad idea to parse the data by regex -.-
++        let byteRange: [Int]?
++        
++        if let byteRangeIndex = lines.firstIndex(where: { $0.contains(HLSStream.Segment.CodingKeys.byteRange.rawValue) }) {
++            let data = lines.remove(at: byteRangeIndex).replacingOccurrences(of: "\(HLSStream.Segment.CodingKeys.byteRange.rawValue):", with: "").split(separator: "@")
++            if data.count >= 2 {
++                byteRange = [Int(data[1]) ?? .zero, Int(data[0]) ?? .zero]
++            } else{
++                byteRange = nil
++            }
++        } else {
++            byteRange = nil
++        }
++        
++        let result: [String: Any?] = [
++            HLSStream.Segment.CodingKeys.duration.rawValue: try HLSStream.Segment.CodingKeys.duration.valueType.caster.parse(string: lines.first) ?? 0,
++            HLSStream.Segment.CodingKeys.name.rawValue: try HLSStream.Segment.CodingKeys.name.valueType.caster.parse(string: lines.last) ?? "",
++            HLSStream.Segment.CodingKeys.byteRange.rawValue: byteRange
++        ]
++        
++        return result
++    }
++    
++}
++
++final class HLSParserStreamByteRangeValueTypeCaster: HLSParserEntityValueMapper {
++    
++    let isArrayObject = false
++    
++    func parse(string: String?) throws -> [Int?]? {
++        guard let string else {
++            return nil
++        }
++        
++        let lines = string
++            .replacingOccurrences(of: "[\\\\\"\\n\\t]", with: "", options: .regularExpression)
++            .split(separator: "@")
++            .map {
++                return String($0)
++            }
++        
++        guard lines.count == 2 else {
++            print("ERROR: HLSParserStreamByteRangeValueTypeCaster lines != 2")
++            
++            return nil
++        }
++        
++        let byteRange: [Int]?
++        
++        if let from = Int(lines[1]), let to = Int(lines[0]) {
++            byteRange = [from, to]
++        } else {
++            byteRange = nil
++        }
++        
++        return byteRange
++    }
++    
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/Models/HLSManifest.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/Models/HLSManifest.swift
+new file mode 100644
+index 0000000000..ac16ade76e
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/Models/HLSManifest.swift
+@@ -0,0 +1,137 @@
++//
++//  HLSManifest.swift
++//  Telegram
++//
++//  Created byVlad on 20.10.2024.
++//
++
++struct HLSManifest: Hashable {
++    let version: UInt8? // #EXT-X-VERSION:{}
++    let isIndependentSegments: Bool = false // #EXT-X-INDEPENDENT-SEGMENTS
++    let medias: [Self.Media]? //#EXT-X-MEDIA:
++    let streams: [Self.Stream] // #EXT-X-STREAM-INF
++}
++
++extension HLSManifest {
++    
++    struct Media: Hashable {
++        let kind: Self.Kind // TYPE
++        let uri: String? // URI
++        let groupId: String // GROUP-ID
++        let language: String? // LANGUAGE
++        let assocLanguage: String? // ASSOC-LANGUAGE
++        let name: String // NAME
++        let isDefault: Bool? // DEFAULT
++        let isAutoselect: Bool? // AUTOSELECT
++    }
++    
++    struct Stream: Hashable {
++        let uri: String // next line aftrer this struct?
++        let bandwidth: UInt? // BANDWIDTH
++        let averageBandwidth: UInt? //AVERAGE-BANDWIDTH
++        let codecs: String? // CODECS
++        let resolution: String? // RESOLUTION
++        let frameRate: Float? // FRAME-RATE
++        let hdcpLevel: String? // HDCP-LEVEL (TYPE-0 / NONE)
++        let audio: String? // AUDIO ?? Self.Media?
++        let video: String? // VIDEO ?? Self.Media?
++        let subtitles: String? // SUBTITLES ?? Self.Media?
++        let closedCaptions: String? // CLOSED-CAPTIONS ?? Self.Media?
++    }
++    
++}
++
++extension HLSManifest: HLSParserEntityModel {
++    
++    typealias ParseKeys = CodingKeys
++    
++    enum CodingKeys: String, HLSParserEntity, CodingKey {
++        static var entityRegex: String = #"([^\r\n:]+)(?::(.+(?:\r?\n(?!#))?.+|.*))?.*"#
++        
++        //        case start = "#EXTM3U"
++        case version = "#EXT-X-VERSION"
++        case isIndependentSegments = "#EXT-X-INDEPENDENT-SEGMENTS"
++        case medias = "#EXT-X-MEDIA"
++        case streams = "#EXT-X-STREAM-INF"
++        
++        var valueType: HLSParserEntityValueType {
++            switch self {
++            case .version:
++                return .int
++            case .isIndependentSegments:
++                return .existFact
++            case .medias:
++                return .custom(HLSParserObjectValueTypeCaster<HLSManifest.Media.CodingKeys>(pattern: #"([\w-]+)=(".*?"|[^",]+)"#, isArrayObject: true))
++            case .streams:
++                return .custom(HLSParserManifestStreamObjectValueTypeCaster())
++            }
++        }
++    }
++    
++}
++
++extension HLSManifest.Media: HLSParserEntityModel {
++    
++    typealias ParseKeys = CodingKeys
++    
++    enum CodingKeys: String, HLSParserEntity, CodingKey {
++        static var entityRegex: String = #"([\w-]+)=(".*?"|[^",]+)"#
++        
++        case kind = "TYPE"
++        case uri = "URI"
++        case groupId = "GROUP-ID"
++        case language = "LANGUAGE"
++        case assocLanguage = "ASSOC-LANGUAGE"
++        case name = "NAME"
++        case isDefault = "DEFAULT"
++        case isAutoselect = "AUTOSELECT"
++        
++        var valueType: HLSParserEntityValueType {
++            switch self {
++            case .kind, .uri, .groupId, .language, .assocLanguage, .name:
++                return .string // TODO
++            case .isDefault, .isAutoselect:
++                return .bool
++            }
++        }
++    }
++    
++    enum Kind: String, Codable {
++        case audio = "AUDIO"
++        case video = "VIDEO"
++        case subtitles = "SUBTITLES"
++        case closedCaptions = "CLOSED-CAPTIONS"
++    }
++    
++}
++
++extension HLSManifest.Stream: HLSParserEntityModel {
++    
++    typealias ParseKeys = CodingKeys
++    
++    enum CodingKeys: String, HLSParserEntity, CodingKey {
++        static var entityRegex: String = #"([\w-]+)=(".*?"|[^",]+)"#
++        
++        case uri = "URI"
++        case bandwidth = "BANDWIDTH"
++        case averageBandwidth = "AVERAGE-BANDWIDTH"
++        case codecs = "CODECS"
++        case resolution = "RESOLUTION"
++        case frameRate = "FRAME-RATE"
++        case hdcpLevel = "HDCP-LEVEL"
++        case audio = "AUDIO"
++        case video = "VIDEO"
++        case subtitles = "SUBTITLES"
++        case closedCaptions = "CLOSED-CAPTIONS"
++        
++        var valueType: HLSParserEntityValueType {
++            switch self {
++            case .uri, .codecs, .resolution, .hdcpLevel, .audio, .video, .subtitles, .closedCaptions:
++                return .string
++            case .bandwidth, .averageBandwidth, .frameRate:
++                return .float
++            }
++        }
++    }
++    
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/Models/HLSStream.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/Models/HLSStream.swift
+new file mode 100644
+index 0000000000..2fd647246e
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/DataParser/Models/HLSStream.swift
+@@ -0,0 +1,147 @@
++//
++//  HLSStream.swift
++//  Telegram
++//
++//  Created byVlad on 20.10.2024.
++//
++
++import Foundation
++
++// #EXTM3U
++struct HLSStream: Hashable {
++    let version: UInt8 // #EXT-X-VERSION
++    let targetDuration: Int? //#EXT-X-TARGETDURATION
++    let mediaSequence: Int? // #EXT-X-MEDIA-SEQUENCE
++    let discontinuitySequence: Int? // #EXT-X-DISCONTINUITY-SEQUENCE
++    let playlistType: PlaylistType? // #EXT-X-PLAYLIST-TYPE VOD/EVENT
++    let iFrameOnly: Bool?  // #EXT-X-I-FRAMES-ONLY
++    let isIndependentSegments: Bool = false // #EXT-X-INDEPENDENT-SEGMENTS
++    let initialData: InitialData? // #EXT-X-MAP
++    let segments: [Segment] // #EXTINF ...
++}
++
++extension HLSStream: HLSParserEntityModel {
++    
++    typealias ParseKeys = CodingKeys
++    
++    enum CodingKeys: String, HLSParserEntity, CodingKey {
++        // really band idea use regex -.-
++        static var entityRegex: String = #"(#EXTINF):([^\r\n]+(?:\r?\n#.*)*\r?\n[^\#\r\n]*)|([^\r\n:]+)(?::(.+(?:\r?\n(?!#))?.+|.*))?.*"#
++        
++        case version = "#EXT-X-VERSION"
++        case targetDuration = "#EXT-X-TARGETDURATION"
++        case mediaSequence = "#EXT-X-MEDIA-SEQUENCE"
++        case discontinuitySequence = "#EXT-X-DISCONTINUITY-SEQUENCE"
++        case playlistType = "#EXT-X-PLAYLIST-TYPE"
++        case iFrameOnly = "#EXT-X-I-FRAMES-ONLY"
++        case isIndependentSegments = "#EXT-X-INDEPENDENT-SEGMENTS"
++        case initialData = "#EXT-X-MAP"
++        case segments = "#EXTINF"
++        
++        var valueType: HLSParserEntityValueType {
++            switch self {
++            case .version, .targetDuration, .mediaSequence, .discontinuitySequence:
++                return .int
++            case .playlistType:
++                return .string
++            case .iFrameOnly, .isIndependentSegments:
++                return .existFact
++            case .initialData:
++                return .custom(HLSParserObjectValueTypeCaster<HLSStream.InitialData.CodingKeys>(pattern: #"([\w-]+)=(".*?"|[^",]+)"#, isArrayObject: false))
++            case .segments:
++                return .custom(HLSParserStreamSegmentObjectValueTypeCaster())
++            }
++        }
++    }
++    
++    struct InitialData: Hashable {
++        let uri: String
++        let byteRange: [Int]?
++    }
++    
++    struct Segment: Hashable {
++        let duration: Float
++        let name: String
++        let byteRange: [Int]?
++    }
++    
++    enum PlaylistType: String, Codable, Hashable {
++        case EVENT = "EVENT"
++        case VOD = "VOD"
++    }
++    
++}
++
++extension HLSStream.InitialData: HLSParserEntityModel {
++    
++    typealias ParseKeys = CodingKeys
++    
++    enum CodingKeys: String, HLSParserEntity, CodingKey {
++        static var entityRegex: String = #"([\w-]+)=(".*?"|[^",]+)"#
++        
++        case uri = "URI"
++        case byteRange = "BYTERANGE"
++        
++        var valueType: HLSParserEntityValueType {
++            switch self {
++            case .uri:
++                return .string
++            case .byteRange:
++                return .custom(HLSParserStreamByteRangeValueTypeCaster())
++            }
++        }
++    }
++    
++}
++
++extension HLSStream.Segment: HLSParserEntityModel {
++    
++    typealias ParseKeys = CodingKeys
++    
++    enum CodingKeys: String, HLSParserEntity, CodingKey {
++        static var entityRegex: String = ""
++        
++        case duration
++        case name
++        case byteRange = "#EXT-X-BYTERANGE"
++        
++        var valueType: HLSParserEntityValueType {
++            switch self {
++            case .duration:
++                return .float
++            case .name, .byteRange:
++                return .string
++            }
++        }
++    }
++    
++}
++
++extension HLSStream.Segment {
++    
++    private static let tempDirectory = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
++    
++    func locaFilePath(uri: String) -> URL {
++        let preffix = String(
++            uri.split(separator: "/").dropLast().joined(separator: "_")
++        )
++        let suffix = String(
++            name.split(separator: "/").joined(separator: "_")
++        )
++        
++        return Self.tempDirectory.appendingPathComponent("\(preffix)_\(suffix)", isDirectory: false)
++    }
++    
++}
++
++extension HLSStream {
++    
++    var duration: Float {
++        return segments.reduce(into: 0.0, { $0 += $1.duration })
++    }
++    
++    var segmentDuration: Float {
++        return segments.first?.duration ?? .zero
++    }
++    
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/FileManager/HLSFileManager.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/FileManager/HLSFileManager.swift
+new file mode 100644
+index 0000000000..c6832ba644
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/FileManager/HLSFileManager.swift
+@@ -0,0 +1,67 @@
++//
++//  HLSFileManager.swift
++//  Telegram
++//
++//  Created byVlad on 20.10.2024.
++//
++
++import Foundation
++import CryptoKit
++
++final class HLSFileManager {
++    
++    private let fileManger: FileManager = .default
++    private let tmpDirectory: URL
++    
++    init(for manifestUrl: URL) {
++        self.tmpDirectory = URL(fileURLWithPath: NSTemporaryDirectory().appending(Self.uid(for: manifestUrl)), isDirectory: true)
++    }
++    
++    func isTrackExist(track: HLSStreamManager.Track) -> URL? {
++        let trackPath = tmpDirectory.appendingPathComponent(track.info.uri, isDirectory: false)
++        return fileManger.fileExists(atPath: trackPath.absoluteString) ? trackPath : nil
++    }
++    
++    func isSegmentExist(for track: HLSStreamManager.Track, segment: HLSStreamManager.Track.Stream.Segment) -> URL? {
++        let segmentPath = tmpDirectory.appendingPathComponent(segment.info.name, isDirectory: false)
++            .appendingPathComponent(track.info.uri.replacingOccurrences(of: ".m3u8", with: ""), isDirectory: false)
++            .appendingPathComponent("\(segment.index)_\(segment.info.name)")
++        
++        return fileManger.fileExists(atPath: segmentPath.absoluteString) ? segmentPath : nil
++    }
++    
++    func save(segment: HLSStreamManager.Track.Stream.Segment, for track: HLSStreamManager.Track, data: Data) throws -> URL {
++        //        let segmentPath = tmpDirectory.appendingPathComponent(segment.info.name, isDirectory: false)
++        let segmentPath = tmpDirectory
++            .appendingPathComponent(track.info.uri.replacingOccurrences(of: ".m3u8", with: ""), isDirectory: false)
++            .appendingPathComponent("\(segment.index)_\(segment.info.name)")
++        
++        guard isSegmentExist(for: track, segment: segment) == nil else {
++            return segmentPath
++        }
++        
++        try fileManger.createDirectory(at: segmentPath.deletingLastPathComponent(), withIntermediateDirectories: true)
++        try data.write(to: segmentPath, options: [.atomic, .completeFileProtection])
++        return segmentPath
++    }
++    
++    // KV_TODO
++    func clearCache() {
++        try? fileManger.removeItem(at: tmpDirectory)
++    }
++    
++    deinit {
++//        clearCache()
++    }
++    
++}
++
++extension HLSFileManager {
++    
++    // KV_TODO
++    static func uid(for manifestUrl: URL) -> String {
++        // hashValue is bad idea
++        return "\(manifestUrl.hashValue)"
++    }
++    
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/HLSDecoder.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/HLSDecoder.swift
+new file mode 100644
+index 0000000000..a3f8ac4f64
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/HLSDecoder.swift
+@@ -0,0 +1,204 @@
++//
++//  HLSDecoder.swift
++//  Telegram
++//
++//  Created byVlad on 22.10.2024.
++//
++
++import Foundation
++import HLSObjcModule
++import Metal
++
++final class HLSDecoderBuffer {
++    let bufferSize: UInt16
++    
++    private var lazyAudioBuffer: [HLSDecoderAudioFrame] = []
++    private var lazyVideoBuffer: [HLSDecoderVideoFrame] = []
++    private var audioBuffer: [HLSDecoderAudioFrame] = []
++    private var videoBuffer: [HLSDecoderVideoFrame] = []
++    
++    private let lazyBufferLock = HLSLock()
++    private let bufferLock = HLSLock()
++    private let hlsDecoder: HLSDecoder
++    private var isBufferFull: Bool = false
++    private var cancelIndex: UInt = .zero
++    
++    let semaphore = DispatchSemaphore(value: 0)
++    
++    private var queue: OperationQueue = {
++        let queue = OperationQueue()
++        queue.name = "com.tg.hls.player.decoder"
++        queue.maxConcurrentOperationCount = 1
++        queue.qualityOfService = .default
++        
++        return queue
++    }()
++    
++    init(mtlDevice: MTLDevice, bufferSize: UInt16) {
++        self.hlsDecoder = HLSDecoder(device: mtlDevice)
++        self.bufferSize = bufferSize
++    }
++    
++    func add(decodeFileUrls: URL, preferredInitPts: Int, seekTimestamp: CFTimeInterval = .zero) {
++        print("decoder added file: \(decodeFileUrls) seek: \(seekTimestamp)")
++        decode(segmentFileUrl: decodeFileUrls, preferredInitPts: preferredInitPts, seekTimestamp: seekTimestamp)
++    }
++    
++    func getMetadata(for segmentUrl: URL, isInitialSegment: Bool, completion: HLSQClosure<HLSDecoderMetadata?>) {
++        queue.addOperation { [weak self] in
++            guard let self else {
++                return
++            }
++            
++            let metadata = self.hlsDecoder.getMetadataWithFileName(segmentUrl.absoluteString)
++            completion.perform(metadata)
++        }
++    }
++    
++    func reset() {
++        cancelIndex += 1
++        queue.cancelAllOperations()
++        resetBuffers()
++    }
++    
++    func getNexVideoFrame() -> HLSDecoderVideoFrame? {
++        let tryGetFrameBlock: () -> HLSDecoderVideoFrame? = {
++            let frame: HLSDecoderVideoFrame?
++            self.lazyBufferLock.lockForWriting()
++            frame = self.lazyVideoBuffer.isEmpty ? nil : self.lazyVideoBuffer.removeFirst()
++            self.lazyBufferLock.unlock()
++            return frame
++        }
++        
++        if let frame = tryGetFrameBlock() {
++            return frame
++        } else {
++            flushVideoBuffer()
++            return tryGetFrameBlock()
++        }
++    }
++    
++    func getNexAudioFrame() -> HLSDecoderAudioFrame? {
++        let tryGetFrameBlock: () -> HLSDecoderAudioFrame? = {
++            let frame: HLSDecoderAudioFrame?
++            self.lazyBufferLock.lockForWriting()
++            frame = self.lazyAudioBuffer.isEmpty ? nil : self.lazyAudioBuffer.removeFirst()
++            self.lazyBufferLock.unlock()
++            return frame
++        }
++        
++        if let frame = tryGetFrameBlock() {
++            return frame
++        } else {
++            flushAudioBuffer()
++            return tryGetFrameBlock()
++        }
++    }
++    
++    var lockIndex: Int = .zero
++    private func decode(segmentFileUrl: URL, preferredInitPts: Int, seekTimestamp: CFTimeInterval) {
++        let ci = cancelIndex
++        let decodeOperation = BlockOperation { [weak self] in
++            guard let self else { return }
++            
++            let block: ([any HLSDecoderFrame]?) -> Void = { [weak self] frames in
++                guard let self, ci == self.cancelIndex else {
++                    return
++                }
++                
++                //                let shoulCheckBufferSize = frames?.firstIndex(where: { $0.stream.type == .video }) != nil
++                
++                //                if shoulCheckBufferSize && self.isBufferFull {
++                //                    self.lockIndex += 1
++                //                    print("[\(self.lockIndex)] lock")
++                //                    semaphore.wait()
++                //                }
++                
++                guard ci == self.cancelIndex else {
++                    print("skip frames #1")
++                    return
++                }
++                
++                let shouldLock: Bool
++                self.bufferLock.lockForWriting()
++                guard ci == self.cancelIndex else {
++                    print("skip frames #2")
++                    return
++                }
++                
++                let wasFull = self.videoBuffer.count >= self.bufferSize
++                var wasVideoFrames = false
++                frames?.forEach {
++                    if let videoFrame = $0 as? HLSDecoderVideoFrame {
++                        self.videoBuffer.append(videoFrame)
++                        wasVideoFrames = true
++                    }
++                    else if let audioFrame = $0 as? HLSDecoderAudioFrame  {
++                        self.audioBuffer.append(audioFrame)
++                    }
++                }
++                
++                if self.videoBuffer.count > bufferSize * 2 {
++                    print("check")
++                }
++                
++                shouldLock = self.videoBuffer.count >= self.bufferSize && wasVideoFrames && wasFull
++                self.isBufferFull = shouldLock
++                self.bufferLock.unlock()
++                
++                if shouldLock {
++                    self.lockIndex += 1
++                    print("[\(self.lockIndex)] lock")
++                    semaphore.wait()
++                }
++            }
++            
++            self.hlsDecoder.decode(
++                withFileName: segmentFileUrl.absoluteString,
++                preferredInitPts: Int32(preferredInitPts),
++                seekTimestamp: Int32(seekTimestamp),
++                segmentUid: UUID(),
++                shouldStop: { [weak self] in
++                    return ci != self?.cancelIndex
++                },
++                completion: block
++            )
++        }
++        
++        queue.addOperation(decodeOperation)
++    }
++    
++    private func flushVideoBuffer() {
++        bufferLock.lockForWriting()
++        lazyBufferLock.lockForWriting()
++        lazyVideoBuffer = videoBuffer
++        videoBuffer.removeAll()
++        
++        if isBufferFull {
++            print("[\(self.lockIndex)] unlock")
++            isBufferFull = false
++            semaphore.signal()
++        }
++        bufferLock.unlock()
++        
++        lazyBufferLock.unlock()
++    }
++    
++    private func flushAudioBuffer() {
++        bufferLock.lockForWriting()
++        lazyBufferLock.lockForWriting()
++        lazyAudioBuffer = audioBuffer
++        audioBuffer.removeAll(keepingCapacity: true)
++        bufferLock.unlock()
++        lazyBufferLock.unlock()
++    }
++    
++    private func resetBuffers() {
++        flushVideoBuffer()
++        flushAudioBuffer()
++        lazyBufferLock.lockForWriting()
++        lazyVideoBuffer.removeAll(keepingCapacity: true)
++        lazyAudioBuffer.removeAll(keepingCapacity: true)
++        lazyBufferLock.unlock()
++    }
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/HLSMetalLayer.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/HLSMetalLayer.swift
+new file mode 100644
+index 0000000000..21f18d4686
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/HLSMetalLayer.swift
+@@ -0,0 +1,160 @@
++//
++//  HLSMetalLayer.swift
++//  Telegram
++//
++//  Created byVlad on 27.10.2024.
++//
++
++import MetalKit
++import HLSObjcModule
++
++final class MetalLayer: CALayer, MTKViewDelegate {
++    
++    private static let vertices: [SIMD4<Float>] = [
++        SIMD4(-1.0, -1.0, 0.0, 1.0),
++        SIMD4(1.0, -1.0, 0.0, 1.0),
++        SIMD4(-1.0, 1.0, 0.0, 1.0),
++        SIMD4(1.0, 1.0, 0.0, 1.0)
++    ]
++    
++    private static let texCoords: [SIMD2<Float>] = [
++        SIMD2(0.0, 1.0),
++        SIMD2(1.0, 1.0),
++        SIMD2(0.0, 0.0),
++        SIMD2(1.0, 0.0)
++    ]
++    
++    var mtlDevice: MTLDevice {
++        return metalView.device!
++    }
++    
++    private var activeTexture: HLSDecoderVideoFrame?
++    private var commandQueue: MTLCommandQueue!
++    private var pipelineState: MTLRenderPipelineState!
++    private var vertexBuffer: MTLBuffer!
++    private var texCoordBuffer: MTLBuffer!
++    private var samplerState: MTLSamplerState!
++    private var metalView: MTKView!
++    private var transformBuffer: MTLBuffer?
++    
++    override var frame: CGRect {
++        didSet {
++            metalView.frame = bounds
++        }
++    }
++    
++    override init() {
++        super.init()
++        
++        self.metalView = MTKView()
++        metalView.device = MTLCreateSystemDefaultDevice()
++        self.commandQueue = metalView.device!.makeCommandQueue()
++        self.vertexBuffer = metalView.device!.makeBuffer(bytes: Self.vertices,
++                                                         length: MemoryLayout<SIMD4<Float>>.size * Self.vertices.count,
++                                                         options: [])
++        self.texCoordBuffer = metalView.device!.makeBuffer(bytes: Self.texCoords,
++                                                           length: MemoryLayout<SIMD2<Float>>.size * Self.texCoords.count,
++                                                           options: [])
++        
++        let mainBundle = Bundle(for: MetalLayer.self)
++        let path = mainBundle.path(forResource: "TelegramUniversalVideoContentBundle", ofType: "bundle")!
++        let bundle = Bundle(path: path)!
++        let library = try? metalView.device?.makeDefaultLibrary(bundle: bundle)
++        let pipelineDescriptor = MTLRenderPipelineDescriptor()
++        pipelineDescriptor.vertexFunction = library?.makeFunction(name: "hls_vertex")
++        pipelineDescriptor.fragmentFunction = library?.makeFunction(name: "hls_fragment")
++        pipelineDescriptor.colorAttachments[0].pixelFormat = metalView.colorPixelFormat
++        self.pipelineState = try? metalView.device!.makeRenderPipelineState(descriptor: pipelineDescriptor)
++        
++        let samplerDescriptor = MTLSamplerDescriptor()
++        samplerDescriptor.minFilter = .linear
++        samplerDescriptor.magFilter = .linear
++        samplerDescriptor.mipFilter = .linear
++        samplerState = metalView.device!.makeSamplerState(descriptor: samplerDescriptor)
++        
++        setupView()
++    }
++    
++    override init(layer: Any) {
++        super.init(layer: layer)
++    }
++    
++    required init?(coder: NSCoder) {
++        fatalError("init(coder:) has not been implemented")
++    }
++    
++    private func setupView() {
++        metalView.delegate = self
++        metalView.framebufferOnly = true
++        metalView.enableSetNeedsDisplay = true
++//        metalView.translatesAutoresizingMaskIntoConstraints = false
++        addSublayer(metalView.layer)
++    }
++    
++    func render(texture: HLSDecoderVideoFrame) {
++        if activeTexture != nil {
++            autoreleasepool {
++                activeTexture = nil
++            }
++        }
++        
++        activeTexture = texture
++        metalView.setNeedsDisplay()
++    }
++    
++    //    override func layoutSubviews() {
++    //        super.layoutSubviews()
++    
++    //        metalView.drawableSize = metalView.bounds.size
++    //    }
++    
++    func scalingMatrix(viewSize: CGSize, textureSize: CGSize) -> float4x4 {
++        let widthRatio = viewSize.width / textureSize.width
++        let heightRatio = viewSize.height / textureSize.height
++        let scaleFactor = min(widthRatio, heightRatio)
++        let newSize = CGSize(width: textureSize.width * scaleFactor, height: textureSize.height * scaleFactor)
++        let scaleX = Float(newSize.width / viewSize.width)
++        let scaleY = Float(newSize.height / viewSize.height)
++        
++        return float4x4(diagonal: SIMD4(scaleX, scaleY, 1.0, 1.0))
++    }
++    
++    func draw(in view: MTKView) {
++        autoreleasepool {
++            guard
++                let texture = activeTexture?.texture,
++                let drawable = view.currentDrawable,
++                let pipelineState = pipelineState,
++                let commandBuffer = commandQueue.makeCommandBuffer(),
++                let renderPassDescriptor = view.currentRenderPassDescriptor else {
++                return
++            }
++            
++            if transformBuffer == nil {
++                var transformMatrix = scalingMatrix(viewSize: bounds.size, textureSize: CGSize(width: texture.width, height: texture.height))
++                transformBuffer = metalView.device!.makeBuffer(bytes: &transformMatrix, length: MemoryLayout<float4x4>.size, options: [])
++            }
++            
++            let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)!
++            renderEncoder.setRenderPipelineState(pipelineState)
++            
++            renderEncoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
++            renderEncoder.setVertexBuffer(texCoordBuffer, offset: 0, index: 1)
++            renderEncoder.setVertexBuffer(transformBuffer, offset: 0, index: 2)
++            renderEncoder.setFragmentTexture(texture, index: 0)
++            renderEncoder.setFragmentSamplerState(samplerState, index: 0)
++            
++            renderEncoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
++            renderEncoder.endEncoding()
++            
++            commandBuffer.present(drawable)
++            commandBuffer.commit()
++        }
++    }
++    
++    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
++        transformBuffer = nil
++        print("Size changed: \(size)")
++    }
++    
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/HLSPlayer.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/HLSPlayer.swift
+new file mode 100644
+index 0000000000..f35cc5e66a
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/HLSPlayer.swift
+@@ -0,0 +1,294 @@
++//
++//  HLSPlayer.swift
++//  Telegram
++//
++//  Created byVlad on 22.10.2024.
++//
++
++import Foundation
++import UIKit
++import AVFAudio
++import HLSObjcModule
++
++protocol HLSPlayerDelegate: AnyObject {
++    
++    func player(_ player: HLSPlayer, didStartPlay track: HLSStreamManager.Track)
++    func player(_ player: HLSPlayer, didStopPlay track: HLSStreamManager.Track)
++    func player(_ player: HLSPlayer, didEndPlay track: HLSStreamManager.Track)
++    func player(_ player: HLSPlayer, rate: Float, for track: HLSStreamManager.Track)
++    func player(_ player: HLSPlayer, error: Error, for track: HLSStreamManager.Track)
++    
++}
++
++final class HLSPlayer: CALayer {
++    
++    var currentTrack: HLSStreamManager.Track? {
++        return playItem?.streamManager?.currentTack
++    }
++    
++    private(set) var currentRate: Float = .zero
++    
++    var currentTime: CFTimeInterval {
++        return playItem?.streamManager?.currentTime ?? .zero
++    }
++    
++    var playSettings: PlaySettings = PlaySettings() {
++        didSet {
++            guard oldValue != playSettings else {
++                return
++            }
++            
++            playSettingsDidChanged(settings: playSettings)
++        }
++    }
++    
++    private(set) var state: State = .idle(nil)
++    private var playItem: PlayItem?
++    weak var playerDelegate: HLSPlayerDelegate?
++    
++    private var metalLayer = MetalLayer()
++    
++    override var frame: CGRect {
++        didSet {
++            metalLayer.frame = bounds
++        }
++    }
++    
++    override init() {
++        super.init()
++        
++        setupView()
++    }
++    
++    required init?(coder: NSCoder) {
++        fatalError("init(coder:) has not been implemented")
++    }
++    
++    private func setupView() {
++        addSublayer(metalLayer)
++    }
++    
++    func preapare(manifestUrl: URL) {
++        // let _manifestUrl = URL(string: "https://videojs-test-1.s3.eu-central-1.amazonaws.com/HLS_SingleFiles/master.m3u8")!
++        // let _manifestUrl = URL(string: "https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_adv_example_hevc/master.m3u8")!
++        // let _manifestUrl = URL(string: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8")!
++        // let _manifestUrl = URL(string: "https://pl.streamingvideoprovider.com/mp3-playlist/playlist.m3u8")!
++        
++        state = .loading(manifestUrl)
++        playItem = PlayItem(url: manifestUrl, mtlDevice: metalLayer.mtlDevice, delegate: self) { [weak self] in
++            guard let self, manifestUrl == playItem?.url else {
++                return
++            }
++            
++            switch state {
++            case .loading(let url):
++                state = .idle(url)
++            case .starting:
++                startPlay(at: .zero)
++            case .playing, .idle, .pause:
++                return
++            }
++        }
++    }
++    
++    func play() {
++        switch state {
++        case .loading(let url):
++            state = .starting(url)
++        case .idle(let url):
++            guard let url, playItem?.url == url else {
++                return
++            }
++            
++            state = .starting(url)
++            startPlay(at: .zero)
++        case .pause:
++            resume()
++        case .playing, .starting:
++            return
++        }
++    }
++    
++    func seek(at timestamp: UInt) {
++        switch state {
++        case .playing:
++            startPlay(at: timestamp)
++        case .idle, .loading, .pause, .starting:
++            return
++        }
++    }
++    
++    func pause() {
++        switch state {
++        case .playing(let url, let track):
++            playItem?.streamManager?.pause()
++            state = .pause(url, track)
++        case .starting(let url):
++            state = .idle(url)
++        case .idle, .pause, .loading:
++            return
++        }
++    }
++    
++    func resume() {
++        switch state {
++        case .pause(let url, let track):
++            playItem?.streamManager?.resume()
++            state = .playing(url, track)
++        case .idle, .loading, .starting, .playing:
++            return
++        }
++    }
++    
++    func stop() {
++        state = .idle(nil)
++        playItem = nil
++    }
++    
++    private func startPlay(at timestamp: UInt) {
++        guard let playItem, let streamManager = playItem.streamManager else {
++            print("Error: No StreamManager")
++            return
++        }
++        
++        guard let track = suitableTrack(for: playSettings.preferredRate, from: streamManager.tracks) else {
++            print("Error: No streamManager.tracks")
++            return
++        }
++        
++        state = .playing(playItem.url, track)
++        streamManager.play(track: track, at: CFTimeInterval(timestamp))
++    }
++    
++    private func playSettingsDidChanged(settings: PlaySettings) {
++        guard let streamManager = playItem?.streamManager else {
++            return
++        }
++        
++        if let currentTrack, !settings.preferredRate.isZero {
++            if let suitableTrack = suitableTrack(for: settings.preferredRate, from: streamManager.tracks) {
++                //                streamManager.tracks.first(where: { $0.resolution.bitRate.contains(Int(settings.preferredRate)) }) {
++                let timestamp = currentTime.rounded()
++                if suitableTrack.resolution != currentTrack.resolution {
++                    streamManager.play(track: suitableTrack, at: timestamp)
++                }
++            }
++        }
++    }
++    
++    private func suitableTrack(for bitRate: Float, from tracks: [HLSStreamManager.Track]) -> HLSStreamManager.Track? {
++        guard !tracks.isEmpty else {
++            return nil
++        }
++        
++        guard tracks.count != 1 && !bitRate.isZero else {
++            return tracks.randomElement()
++        }
++        
++        return tracks.last(where: { ($0.info.bandwidth ?? .zero) >= UInt(bitRate) })
++        //            .first(where: { $0.resolution.bitRate.contains(Int(bitRate)) }) ?? tracks.first
++    }
++    
++    var isFirst = true
++}
++
++extension HLSPlayer: HLSStreamManagerDelegate {
++    
++    func streamManager(_ streamManager: HLSStreamManager, nextRenderFrame frame: HLSDecoderFrame, for track: HLSStreamManager.Track) {
++        if isFirst {
++            metalLayer.frame = bounds
++            isFirst = false
++        }
++        guard let frame = (frame as? HLSDecoderVideoFrame) else {
++            return
++        }
++        
++        if let initialPts = streamManager.initialPts, let trackBandwidth = track.info.bandwidth ?? track.info.averageBandwidth {
++            let progress = (frame.pts - initialPts) / 6.0
++            currentRate = Float(trackBandwidth) * Float(progress)
++            playerDelegate?.player(self, rate: currentRate, for: track)
++        }
++        
++        metalLayer.render(texture: frame)
++    }
++    
++    func streamManager(_ streamManager: HLSStreamManager, didStartPlay track: HLSStreamManager.Track) {
++        playerDelegate?.player(self, didStartPlay: track)
++    }
++    
++    func streamManager(_ streamManager: HLSStreamManager, didPausePlay track: HLSStreamManager.Track) {
++        currentRate = .zero
++    }
++    
++    func streamManager(_ streamManager: HLSStreamManager, didStopPlay track: HLSStreamManager.Track) {
++        playerDelegate?.player(self, didStopPlay: track)
++    }
++    
++    func streamManager(_ streamManager: HLSStreamManager, didEndPlay track: HLSStreamManager.Track) {
++        playerDelegate?.player(self, didEndPlay: track)
++    }
++    
++    func streamManager(_ streamManager: HLSStreamManager, error: any Error, for track: HLSStreamManager.Track) {
++        playerDelegate?.player(self, error: error, for: track)
++    }
++    
++}
++
++extension HLSPlayer {
++    
++    enum State {
++        case loading(URL)
++        case idle(URL?)
++        case starting(URL)
++        case playing(URL, HLSStreamManager.Track)
++        case pause(URL, HLSStreamManager.Track)
++    }
++    
++}
++
++extension HLSPlayer {
++    
++    struct PlaySettings: Hashable {
++        var volume: Float = 1.0
++        var preferredRate: Float = .zero
++    }
++    
++    final class PlayItem {
++        
++        let url: URL
++        private(set) var manifest: HLSManifest?
++        private(set) var streamManager: HLSStreamManager?
++        
++        private let dataLoader: HLSDataLoader
++        private let fileManager: HLSFileManager
++        private let mtlDevice: MTLDevice
++        private let readyBlock: () -> Void
++        private weak var streamManagerDelegate: HLSStreamManagerDelegate?
++        
++        init(url: URL, mtlDevice: MTLDevice, delegate: HLSStreamManagerDelegate, readyBlock: @escaping () -> Void) {
++            self.url = url
++            self.dataLoader = HLSDataLoader(url: url)
++            self.fileManager = HLSFileManager(for: url)
++            self.streamManagerDelegate = delegate
++            self.mtlDevice = mtlDevice
++            self.readyBlock = readyBlock
++            
++            downloadManifes()
++        }
++        
++        private func downloadManifes() {
++            dataLoader.downloadManifest(
++                completion: .on(.main, { [weak self] manifest in
++                    guard let self, let manifest else {
++                        return
++                    }
++                    
++                    self.manifest = manifest
++                    self.streamManager = HLSStreamManager(streams: manifest.streams, dataLoader: dataLoader, fileManager: fileManager, mtlDevice: mtlDevice, delegate: streamManagerDelegate)
++                    readyBlock()
++                })
++            )
++        }
++    }
++    
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/HLSTimer.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/HLSTimer.swift
+new file mode 100644
+index 0000000000..a8afb06a80
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/HLSTimer.swift
+@@ -0,0 +1,131 @@
++//
++//  HLSTimer.swift
++//  Telegram
++//
++//  Created byVlad on 20.10.2024.
++//
++
++import Foundation
++import UIKit
++import AVKit
++
++final class HLSTimer {
++    
++    typealias TickBlock = () -> Void
++    
++    private lazy var displayLink = CADisplayLink(target: self, selector: #selector(tick))
++    
++    private var session: Session?
++    private var lasTimestamp: CFTimeInterval?
++    
++    init() {
++        setupService()
++    }
++    
++    private func setupService() {
++        displayLink.isPaused = true
++    }
++    
++    func prepare(with mode: Mode, tickBlock: @escaping TickBlock) {
++        session = Session(mode: mode, tickBlock: tickBlock)
++        
++        guard let session else {
++            return
++        }
++        
++        switch session.mode {
++        case .audioAndVideo(let fps, _):
++            displayLink.preferredFramesPerSecond = fps
++        case .videoOnly(let fps):
++            displayLink.preferredFramesPerSecond = fps
++        case .audioOnly(_):
++            break
++        }
++        
++        displayLink.add(to: .current, forMode: .default)
++        displayLink.isPaused = true
++    }
++    
++    private var lastCorrectAudioPts: CFTimeInterval?
++    func correctAudio(with pts: CFTimeInterval) {
++        self.lastCorrectAudioPts = pts
++    }
++    
++    func pause() {
++        guard session != nil, !displayLink.isPaused else {
++            return
++        }
++        
++        displayLink.isPaused = true
++    }
++    
++    func resume() {
++        guard session != nil, displayLink.isPaused else {
++            return
++        }
++        
++        displayLink.isPaused = false
++    }
++    
++    func stop() {
++        guard session != nil else {
++            return
++        }
++        
++        session = nil
++        displayLink.isPaused = true
++        displayLink.remove(from: .current, forMode: .default)
++    }
++    
++    @objc private func tick() {
++        guard let session else {
++            stop()
++            return
++        }
++        
++        let timestamp: CFTimeInterval
++        switch session.mode {
++        case .audioAndVideo(_, let audioNode):
++            guard let audioNode, audioNode.isPlaying else {
++                return
++            }
++            
++            let sampleRate = (audioNode.lastRenderTime?.sampleRate ?? 1.0)
++            timestamp = CFTimeInterval((audioNode.lastRenderTime?.sampleTime ?? .zero)) / sampleRate
++        case .videoOnly(_):
++            timestamp = displayLink.timestamp
++        case .audioOnly(let audioNode):
++            guard let audioNode else {
++                return
++            }
++            
++            let sampleRate = Int64(audioNode.lastRenderTime?.sampleRate ?? 1.0)
++            timestamp = CFTimeInterval((audioNode.lastRenderTime?.sampleTime ?? .zero) / sampleRate)
++        }
++        
++        guard let lasTimestamp, timestamp > .zero else {
++            self.lasTimestamp = timestamp
++            _ = session.tickBlock()
++            return
++        }
++        
++        self.lasTimestamp = timestamp - lasTimestamp
++        session.tickBlock()
++    }
++    
++}
++
++extension HLSTimer {
++    
++    enum Mode {
++        case audioAndVideo(fps: Int, audioNode: AVAudioPlayerNode?)
++        case videoOnly(fps: Int)
++        case audioOnly(audioNode: AVAudioPlayerNode?)
++    }
++    
++    private struct Session {
++        let mode: Mode
++        let tickBlock: TickBlock
++    }
++    
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/Helpers/HLSLock.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/Helpers/HLSLock.swift
+new file mode 100644
+index 0000000000..60628f06eb
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/Helpers/HLSLock.swift
+@@ -0,0 +1,36 @@
++//
++//  HLSLock.swift
++//  Telegram
++//
++//  Created byVlad on 20.10.2024.
++//
++
++import Foundation
++
++public final class HLSLock: NSObject {
++    
++    private var lock: pthread_rwlock_t
++    
++    override public init() {
++        lock = pthread_rwlock_t()
++        pthread_rwlock_init(&lock, nil)
++        super.init()
++    }
++    
++    deinit {
++        pthread_rwlock_destroy(&lock)
++    }
++    
++    func lockForReading() {
++        pthread_rwlock_rdlock(&lock)
++    }
++    
++    func lockForWriting() {
++        pthread_rwlock_wrlock(&lock)
++    }
++    
++    func unlock() {
++        pthread_rwlock_unlock(&lock)
++    }
++    
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/Helpers/HLSQClosure.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/Helpers/HLSQClosure.swift
+new file mode 100644
+index 0000000000..c476244648
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/Helpers/HLSQClosure.swift
+@@ -0,0 +1,28 @@
++//
++//  HLSQClosure.swift
++//  Telegram
++//
++//  Created byVlad on 20.10.2024.
++//
++
++import Foundation
++
++enum HLSQClosure<T> {
++    
++    typealias Closure = (T) -> Void
++    
++    case any(Closure)
++    case on(DispatchQueue, Closure)
++    
++    func perform(_ object: T) {
++        switch self {
++        case .any(let closure):
++            closure(object)
++        case .on(let queue, let closure):
++            queue.async {
++                closure(object)
++            }
++        }
++    }
++    
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/Helpers/HLSTask.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/Helpers/HLSTask.swift
+new file mode 100644
+index 0000000000..81e1f553a7
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/Helpers/HLSTask.swift
+@@ -0,0 +1,82 @@
++//
++//  HLSTask.swift
++//  Telegram
++//
++//  Created byVlad on 20.10.2024.
++//
++
++import Foundation
++
++final class HLSTask {
++    
++    public typealias Closure = (Controller) -> Void
++    
++    var isCancelled: Bool = false
++    
++    private let taskBlock: Closure
++    private weak var controller: Controller?
++    
++    init(taskBlock: @escaping Closure) {
++        self.taskBlock = taskBlock
++    }
++    
++    func perform(on queue: DispatchQueue, handler: @escaping () -> Void) {
++        queue.async {
++            guard !self.isCancelled else {
++                return
++            }
++            
++            let controller = Controller(queue: queue, handler: handler)
++            self.controller = controller
++            self.taskBlock(controller)
++        }
++    }
++    
++}
++
++extension HLSTask {
++    
++    final class Controller {
++        
++        fileprivate let isCancelled: Bool = false
++        fileprivate let queue: DispatchQueue
++        fileprivate let handler: () -> Void
++        
++        fileprivate init(queue: DispatchQueue, handler: @escaping () -> Void) {
++            self.queue = queue
++            self.handler = handler
++        }
++        
++        func finish() {
++            queue.async {
++                print("HLSTask finished")
++                self.handler()
++            }
++        }
++        
++    }
++    
++}
++extension HLSTask {
++    
++    static func sequence(_ tasks: [HLSTask]) -> HLSTask {
++        var sequence = tasks
++        return HLSTask { controller in
++            func performNext(using controller: Controller) {
++                guard !sequence.isEmpty && !controller.isCancelled else {
++                    controller.finish()
++                    return
++                }
++                
++                let task = sequence.removeFirst()
++                
++                task.perform(on: controller.queue) {
++                    performNext(using: controller)
++                }
++            }
++            
++            performNext(using: controller)
++        }
++    }
++    
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/Helpers/String+Extension.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/Helpers/String+Extension.swift
+new file mode 100644
+index 0000000000..9ae165b7de
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/Helpers/String+Extension.swift
+@@ -0,0 +1,45 @@
++//
++//  String+Extension.swift
++//  Telegram
++//
++//  Created byVlad on 20.10.2024.
++//
++
++import Foundation
++
++extension String {
++    
++    func regexMatches(pattern: String) throws -> [[NSRange]] {
++        let stringRange = NSRange(location: 0, length: utf16.count)
++        let regex = try NSRegularExpression(pattern: pattern)
++        
++        let matches = regex.matches(in: self, range: stringRange)
++        return matches.map { match in
++            (0..<match.numberOfRanges).map {
++                match.range(at: $0)
++            }.filter {
++                $0.location != NSNotFound
++            }
++        }
++    }
++    
++    func string(at range: NSRange) -> String? {
++        guard range.location != NSNotFound else {
++            return nil
++        }
++        
++        let lowerBound = Self.Index(utf16Offset: range.lowerBound, in: self)
++        let upperBound = Self.Index(utf16Offset: range.upperBound, in: self)
++        
++        return String(self[lowerBound..<upperBound])
++    }
++    
++}
++
++extension Array {
++    
++    subscript(safe index: Index) -> Element? {
++        return indices.contains(index) ? self[index] : nil
++    }
++    
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/StreamManager/HLSStreamManager.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/StreamManager/HLSStreamManager.swift
+new file mode 100644
+index 0000000000..7d2c25eba3
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/StreamManager/HLSStreamManager.swift
+@@ -0,0 +1,447 @@
++//
++//  HLSStreamManager.swift
++//  Telegram
++//
++//  Created byVlad on 20.10.2024.
++//
++
++import Foundation
++import UIKit
++import AVKit
++import HLSObjcModule
++
++final class HLSStreamManager {
++    
++    enum State {
++        case idle
++        case starting(Track)
++        case play(Track, HLSDecoderMetadata)
++        case pause(Track, HLSDecoderMetadata)
++    }
++    
++    var currentTime: CFTimeInterval {
++        switch state {
++        case .play(_, let metadata), .pause(_, let metadata):
++            return CFTimeInterval(currentPts) * (CFTimeInterval(metadata.streams.first?.num ?? .zero) / CFTimeInterval(metadata.streams.first?.den ?? 1))
++        case .idle, .starting:
++            return .zero
++        }
++    }
++    
++    var currentTack: HLSStreamManager.Track? {
++        switch state {
++        case .play(let track, _), .pause(let track, _), .starting(let track):
++            return track
++        case .idle:
++            return nil
++        }
++    }
++    
++    var initialPts: CFTimeInterval?
++    
++    weak var delegate: HLSStreamManagerDelegate?
++    
++    var volume: Float {
++        get {
++            return audioPlayerNode.volume
++        } set {
++            audioPlayerNode.volume = newValue
++        }
++    }
++    
++    private(set) var state: State = .idle
++    private(set) var tracks: [Track] = []
++    
++    private let timer: HLSTimer
++    private let dataLoader: HLSDataLoader
++    private let fileManager: HLSFileManager
++    private let decoder:HLSDecoderBuffer
++    private let queue: DispatchQueue
++    private var audioEngine = AVAudioEngine()
++    private var audioPlayerNode = AVAudioPlayerNode()
++    
++    private var activeSegmentDownloadTask: HLSTask?
++    private var cachedVideoFrame: HLSDecoderVideoFrame?
++    private var cachedAudioFrame: HLSDecoderAudioFrame?
++    private var currentPts: CFTimeInterval = .zero
++    private var playIndex: UInt = .zero
++    
++    init(streams: [HLSManifest.Stream], dataLoader: HLSDataLoader, fileManager: HLSFileManager, mtlDevice: MTLDevice, delegate: HLSStreamManagerDelegate?) {
++        self.fileManager = fileManager
++        self.dataLoader = dataLoader
++        self.timer = HLSTimer()
++        self.queue = DispatchQueue.init(label: "com.tg.hls.stream.manager", qos: .userInitiated)
++        self.tracks = streams.map { Track(info: $0, state: .notLoaded) }
++        self.delegate = delegate
++        self.decoder = HLSDecoderBuffer(mtlDevice: mtlDevice, bufferSize: 15)
++        
++        setupService()
++    }
++    
++    private func setupService() {
++        let audioFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: 44100, channels: 2, interleaved: false)
++        audioEngine.attach(audioPlayerNode)
++        audioEngine.connect(audioPlayerNode, to: audioEngine.mainMixerNode, format: audioFormat)
++        audioEngine.prepare()
++        
++        do {
++            try audioEngine.start()
++        } catch {
++            print("AudioEngine error=\(error)")
++        }
++    }
++    
++    func play(track: Track, at targetTime: CFTimeInterval) {
++        playIndex += 1
++        reset()
++        state = .starting(track)
++        let atPlayIndex = playIndex
++        
++        let startBlock: (Track.Stream) -> Void = { [weak self] stream in
++            guard let self, atPlayIndex == self.playIndex else {
++                return
++            }
++            
++            switch self.state {
++            case .starting(let track):
++                guard let starSegment = stream.suitableSegment(at: targetTime) else {
++                    self.delegate?.streamManager(self, error: NSError(domain: "HLSError", code: 1), for: track)
++                    return
++                }
++                
++                self.startPlay(stream: stream, in: track, targetTime: targetTime, from: starSegment)
++            case .idle, .play, .pause:
++                return
++            }
++        }
++        
++        switch track.state {
++        case .loaded(let stream):
++            startBlock(stream)
++        case .notLoaded:
++            state = .starting(track)
++            download(track: track) { stream in
++                startBlock(stream)
++            }
++        case .loading:
++            state = .starting(track)
++        }
++        
++        timer.prepare(
++            with: .audioAndVideo(fps: Int(track.info.frameRate ?? 60), audioNode: audioPlayerNode)
++        ) { [weak self] in
++            guard
++                let self,
++                atPlayIndex == self.playIndex,
++                case .play(let track, let metadata) = self.state,
++                case .loaded(let trackStream) = track.state,
++                let streamMetadata = metadata.streams.first
++            else {
++                return
++            }
++            
++            let nextPts = self.currentPts + (Double(streamMetadata.den) / Double(track.info.frameRate ?? 60.0))
++            let nextVideoFrames = self.getNextVideoFrames(for: nextPts, initialPts: metadata.initialPts)
++            let nextAudioFrames = self.getNextAudioFrames(for: nextPts, initialPts: metadata.initialPts)
++            
++            if nextPts >= trackStream.duration * CFTimeInterval(streamMetadata.den) {
++                self.delegate?.streamManager(self, didEndPlay: track)
++                currentPts = .zero
++                self.reset()
++            }
++            
++            if (nextAudioFrames.isEmpty && nextVideoFrames.isEmpty) && (cachedAudioFrame == nil && cachedVideoFrame == nil) {
++                return
++            }
++            
++            self.currentPts = nextPts
++            nextAudioFrames.forEach { frame in
++                guard let pcmBuffer = frame.pcmBuffer else {
++                    return
++                }
++                
++                self.audioPlayerNode.scheduleBuffer(pcmBuffer)
++            }
++            
++            nextVideoFrames.forEach { frame in
++                autoreleasepool { // todo: not sure for forEach
++                    if self.initialPts == nil {
++                        self.initialPts = frame.pts
++                    }
++                    
++                    self.delegate?.streamManager(self, nextRenderFrame: frame, for: track)
++                }
++            }
++        }
++    }
++    
++    func pause() {
++        switch state {
++        case .play(let track, let metadata):
++            timer.pause()
++            audioPlayerNode.pause()
++            state = .pause(track, metadata)
++            delegate?.streamManager(self, didPausePlay: track)
++        case .idle, .pause, .starting:
++            return
++        }
++    }
++    
++    func resume() {
++        switch state {
++        case .pause(let track, let metadata):
++            timer.resume()
++            audioPlayerNode.play()
++            state = .play(track, metadata)
++        case .idle, .play, .starting:
++            return
++        }
++    }
++    
++    func stop() {
++        switch state {
++        case .play, .pause, .starting:
++            state = .idle
++            reset()
++        case .idle:
++            return
++        }
++    }
++    
++    private func getNextVideoFrames(for pts: CFTimeInterval, initialPts: Int64) -> [HLSDecoderVideoFrame] {
++        var outputFrames = [HLSDecoderVideoFrame]()
++        repeat {
++            guard let frame = cachedVideoFrame ?? decoder.getNexVideoFrame() else {
++                break
++            }
++            
++            let normalizedPts = pts + CFTimeInterval(initialPts)
++            guard frame.pts <= normalizedPts else {
++                if frame.pts > normalizedPts {
++                    cachedVideoFrame = frame
++                    break
++                } else {
++                    cachedVideoFrame = nil
++                    continue
++                }
++            }
++            
++            outputFrames.append(frame)
++            cachedVideoFrame = nil
++        } while(true)
++        
++        return outputFrames
++    }
++    
++    private func getNextAudioFrames(for pts: CFTimeInterval, initialPts: Int64) -> [HLSDecoderAudioFrame] {
++        var outputFrames = [HLSDecoderAudioFrame]()
++        repeat {
++            guard let frame = cachedAudioFrame ?? decoder.getNexAudioFrame() else {
++                break
++            }
++            
++            let test = frame.pts / 2.0
++            let normalizedPts = pts + CFTimeInterval(initialPts)
++            guard test <= normalizedPts else {
++                if frame.pts > normalizedPts {
++                    cachedAudioFrame = frame
++                    break
++                } else {
++                    cachedAudioFrame = nil
++                    continue
++                }
++            }
++            
++            outputFrames.append(frame)
++            cachedAudioFrame = nil
++        } while(true)
++        
++        return outputFrames
++    }
++    
++    private func startPlay(stream: Track.Stream, in track: Track, targetTime: CFTimeInterval, from startSegment: (Track.Stream.Segment, CFTimeInterval)) {
++        reset()
++        let atPlayIndex = playIndex
++        
++        state = .starting(track)
++        
++        // oh blya neozidano
++        let initialSegment: Track.Stream.Segment?
++        if let initialData = stream.info.initialData {
++            initialSegment = Track.Stream.Segment(
++                index: -1,
++                info: HLSStream.Segment(
++                    duration: .zero,
++                    name: initialData.uri,
++                    byteRange: [initialData.byteRange?.first ?? 0, stream.segments.first?.info.byteRange?.first ?? initialData.byteRange?.last ?? 0] // )))))
++                ),
++                state: .notLoaded
++            )
++        } else {
++            initialSegment = nil
++        }
++        
++        let filteredSegments = stream.segments[startSegment.0.index..<stream.segments.count]
++        let firstSegmentTask = HLSTask { [weak self] task in
++            guard let self, atPlayIndex == self.playIndex else { return }
++            guard let firstSegment = initialSegment ?? stream.segments.first else {
++                self.delegate?.streamManager(self, error: NSError(domain: "HLS", code: 3), for: track)
++                task.finish()
++                return
++            }
++            
++            let getMetadataBlock: (URL) -> Void = { [weak self] segmentUrl in
++                guard let self, atPlayIndex == self.playIndex else {
++                    task.finish()
++                    return
++                }
++                
++                decoder.getMetadata(for: segmentUrl, isInitialSegment: initialSegment != nil, completion: .on(queue, { [weak self] metadata in
++                    guard let self, atPlayIndex == self.playIndex else {
++                        task.finish()
++                        return
++                    }
++                    
++                    guard let metadata else {
++                        self.delegate?.streamManager(self, error: NSError(domain: "HLS", code: 2), for: track)
++                        task.finish()
++                        return
++                    }
++                    
++                    self.state = .play(track, metadata)
++                    self.currentPts = CFTimeInterval(Int(targetTime)) * CFTimeInterval(metadata.streams.first?.den ?? 1)
++                    self.timer.resume()
++                    self.audioPlayerNode.play()
++                    task.finish()
++                }))
++            }
++            
++            switch firstSegment.state {
++            case .loaded(let url):
++                getMetadataBlock(url)
++            case .notLoaded:
++                if let cachedSegmentPath = fileManager.isSegmentExist(for: track, segment: firstSegment) {
++                    firstSegment.state = .loaded(cachedSegmentPath)
++                    getMetadataBlock(cachedSegmentPath)
++                } else {
++                    self.download(segment: firstSegment, for: track, isInitialSegment: firstSegment.index == -1) { downloadedSegment in
++                        guard atPlayIndex == self.playIndex, case .loaded(let url) = downloadedSegment.state else {
++                            return
++                        }
++                        
++                        getMetadataBlock(url)
++                    }
++                }
++            case .loading:
++                task.finish()
++                return
++            }
++        }
++        
++        var tasks = filteredSegments.map { segment in
++            return HLSTask { [weak self] task in
++                guard let self, atPlayIndex == self.playIndex else {
++                    return
++                }
++                
++                guard case .play(_, let metadata) = self.state else {
++                    return
++                }
++                
++                let seekTimestamp = segment.index == startSegment.0.index ? currentPts + CFTimeInterval(metadata.initialPts) : .zero
++                let preferredInitPts = initialSegment != nil ? stream.preferredPts(for: segment, at: metadata.streams.first) : -1
++                switch segment.state {
++                case .loaded(let url):
++                    decoder.add(decodeFileUrls: url, preferredInitPts: preferredInitPts, seekTimestamp: seekTimestamp)
++                    task.finish()
++                case .notLoaded:
++                    if let cachedSegmentPath = fileManager.isSegmentExist(for: track, segment: segment) {
++                        self.decoder.add(decodeFileUrls: cachedSegmentPath, preferredInitPts: preferredInitPts, seekTimestamp: seekTimestamp)
++                        segment.state = .loaded(cachedSegmentPath)
++                        task.finish()
++                    } else {
++                        self.download(segment: segment, for: track, isInitialSegment: false) { [weak self] downloadedSegment in
++                            guard let self, atPlayIndex == self.playIndex, case .loaded(let url) = downloadedSegment.state else {
++                                return
++                            }
++                            
++                            self.decoder.add(decodeFileUrls: url, preferredInitPts: preferredInitPts, seekTimestamp: seekTimestamp)
++                            task.finish()
++                        }
++                    }
++                case .loading:
++                    task.finish()
++                    break
++                }
++            }
++        }
++        
++        tasks.insert(firstSegmentTask, at: .zero)
++        let mainTask = HLSTask.sequence(tasks)
++        mainTask.perform(on: queue) {
++            print("Segments load finished")
++        }
++        
++        activeSegmentDownloadTask = mainTask
++    }
++    
++    private func download(track: Track, completion: ((HLSStreamManager.Track.Stream) -> Void)?) {
++        guard case .notLoaded = track.state else {
++            return
++        }
++        
++        track.state = .loading
++        dataLoader.downlod(stream: track.info, completion: .on(queue, { streamInfo in
++            guard let streamInfo else {
++                return
++            }
++            
++            let stream = Track.Stream(info: streamInfo)
++            track.state = .loaded(stream)
++            
++            completion?(stream)
++        }))
++    }
++    
++    private func download(segment: Track.Stream.Segment, for track: Track, isInitialSegment: Bool, completion: ((Track.Stream.Segment) -> Void)?) {
++        guard case .notLoaded = segment.state else {
++            return
++        }
++        
++        segment.state = .loading
++        dataLoader.download(
++            segment: segment.info,
++            uri: track.info.uri,
++            isInitialSegment: isInitialSegment,
++            completion: .on(queue, { [weak self] _, data in
++                guard let self else { return }
++                guard let data else {
++                    return
++                }
++                
++                do {
++                    let segmentPath = try self.fileManager.save(segment: segment, for: track, data: data)
++                    segment.state = .loaded(segmentPath)
++                    completion?(segment)
++                } catch {
++                    segment.state = .notLoaded
++                }
++            }))
++    }
++    
++    private func reset() {
++        activeSegmentDownloadTask?.isCancelled = true
++        activeSegmentDownloadTask = nil
++        timer.pause()
++        decoder.reset()
++        cachedVideoFrame = nil
++        cachedAudioFrame = nil
++        audioPlayerNode.stop()
++        audioPlayerNode.reset()
++        initialPts = nil
++    }
++    
++    deinit {
++        reset()
++    }
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/StreamManager/HLSStreamManagerDelegate.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/StreamManager/HLSStreamManagerDelegate.swift
+new file mode 100644
+index 0000000000..a95b1fa362
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/StreamManager/HLSStreamManagerDelegate.swift
+@@ -0,0 +1,19 @@
++//
++//  HLSStreamManagerDelegate.swift
++//  Telegram
++//
++//  Created by Vlad on 27.10.2024.
++//
++
++import HLSObjcModule
++
++protocol HLSStreamManagerDelegate: AnyObject {
++    
++    func streamManager(_ streamManager: HLSStreamManager, didStartPlay track: HLSStreamManager.Track)
++    func streamManager(_ streamManager: HLSStreamManager, didPausePlay track: HLSStreamManager.Track)
++    func streamManager(_ streamManager: HLSStreamManager, didStopPlay track: HLSStreamManager.Track)
++    func streamManager(_ streamManager: HLSStreamManager, didEndPlay track: HLSStreamManager.Track)
++    func streamManager(_ streamManager: HLSStreamManager, nextRenderFrame frame: HLSDecoderFrame, for track: HLSStreamManager.Track)
++    func streamManager(_ streamManager: HLSStreamManager, error: Error, for track: HLSStreamManager.Track)
++    
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLS/StreamManager/HLSStreamManagerTrack.swift b/submodules/TelegramUniversalVideoContent/Sources/HLS/StreamManager/HLSStreamManagerTrack.swift
+new file mode 100644
+index 0000000000..8ec5355607
+--- /dev/null
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLS/StreamManager/HLSStreamManagerTrack.swift
+@@ -0,0 +1,210 @@
++//
++//  HLSStreamManagerTrack.swift
++//  Telegram
++//
++//  Created by Vlad on 27.10.2024.
++//
++
++import Foundation
++import UIKit
++import HLSObjcModule
++
++extension HLSStreamManager {
++    
++    final class Track {
++        
++        enum State {
++            case notLoaded
++            case loading
++            case loaded(Track.Stream)
++        }
++        
++        var state: State
++        let info: HLSManifest.Stream
++        
++        lazy var resolution: Resolution = {
++            guard let resolution = info.resolution else {
++                return Resolution(size: ClosedResolution._720p.size)
++            }
++            
++            let rawValues = resolution.split(separator: "x")
++            
++            guard
++                rawValues.count == 2,
++                let width = Int(String(rawValues.first!)),
++                let height = Int(String(rawValues.last!))
++            else {
++                return Resolution(size: ClosedResolution._720p.size)
++            }
++            
++            return Resolution(size: CGSize(width: width, height: height))
++        }()
++        
++        private var stateChangeBlock: ((Track) -> Void)?
++        private var segmentStateChangedBlock: ((Track.Stream.Segment) -> Void)?
++        
++        init(info: HLSManifest.Stream, state: State) {
++            self.info = info
++            self.state = state
++        }
++        
++        func observeStates(
++            trackStateChanged: @escaping (Track) -> Void,
++            segmentStateChanged: @escaping (Track.Stream.Segment) -> Void
++        ) {
++            stateChangeBlock = trackStateChanged
++            segmentStateChangedBlock = segmentStateChanged
++        }
++    }
++    
++}
++
++extension HLSStreamManager.Track {
++    
++    final class Stream {
++        
++        let segments: [HLSStreamManager.Track.Stream.Segment]
++        let info: HLSStream
++        
++        lazy var duration: CFTimeInterval = {
++            return segments.reduce(into: 0.0, { $0 += CFTimeInterval($1.info.duration) })
++        }()
++        
++        lazy var avgSegmentDuration: CFTimeInterval = {
++            return duration / CFTimeInterval(segments.count)
++        }()
++        
++        func suitableSegment(at targetTime: CFTimeInterval) -> (Stream.Segment, CFTimeInterval)? {
++            var sum: CFTimeInterval = .zero
++            
++            let suitableSegmentIndex = segments.first(where: {
++                sum += CFTimeInterval($0.info.duration)
++                return sum > targetTime
++            })
++            
++            guard let suitableSegmentIndex else {
++                return nil
++            }
++            
++            let fragmentDuration = CFTimeInterval(segments[0...suitableSegmentIndex.index].reduce(into: 0.0, { $0 += $1.info.duration }))
++            let seekTime = targetTime - fragmentDuration + CFTimeInterval(suitableSegmentIndex.info.duration)
++            
++            return (suitableSegmentIndex, seekTime)
++        }
++        
++        func preferredPts(for segment: HLSStreamManager.Track.Stream.Segment, at stream: HLSDecoderStream?) -> Int {
++            guard let stream, segment.index != .zero else {
++                return .zero
++            }
++            
++            let duration = segments[0..<segment.index].reduce(into: 0.0, { $0 += $1.info.duration })
++            return Int(duration) * Int(stream.den)
++        }
++        
++        init(info: HLSStream) {
++            self.info = info
++            self.segments = info.segments.enumerated().map {
++                Self.Segment(index: $0.offset, info: $0.element, state: .notLoaded)
++            }
++        }
++    }
++    
++}
++
++extension HLSStreamManager.Track.Stream {
++    
++    final class Segment {
++        
++        enum State {
++            case notLoaded
++            case loading
++            case loaded(URL)
++        }
++        
++        let index: Int
++        let info: HLSStream.Segment
++        
++        var state: State = .notLoaded
++        
++        init(index: Int, info: HLSStream.Segment, state: State) {
++            self.index = index
++            self.info = info
++            self.state = state
++        }
++        
++    }
++    
++}
++
++extension HLSStreamManager.Track {
++    
++    struct Resolution: Hashable {
++        let size: CGSize
++        let closedResolution: ClosedResolution
++        var bitRate: Range<Int> {
++            closedResolution.bitRate
++        }
++        
++        init(size: CGSize) {
++            self.size = size
++            self.closedResolution = ._1080p
++        }
++    }
++    
++    enum ClosedResolution: CaseIterable {
++        case _240p
++        case _360p
++        case _480
++        case _720p
++        case _1080p
++        case _1440p
++        case _2160p
++        
++        var size: CGSize {
++            switch self {
++            case ._240p:
++                return CGSize(width: 426, height: 240)
++            case ._360p:
++                return CGSize(width: 640, height: 360)
++            case ._480:
++                return CGSize(width: 854, height: 480)
++            case ._720p:
++                return CGSize(width: 1280, height: 720)
++            case ._1080p:
++                return CGSize(width: 1920, height: 1080)
++            case ._1440p:
++                return CGSize(width: 2560, height: 1440)
++            case ._2160p:
++                return CGSize(width: 2560, height: 1440)
++            }
++        }
++        
++        var bitRate: Range<Int> {
++            switch self {
++            case ._240p:
++                return (300..<700)
++            case ._360p:
++                return (700..<1000)
++            case ._480:
++                return (1000..<2000)
++            case ._720p:
++                return (2000..<4000)
++            case ._1080p:
++                return (4000..<8000)
++            case ._1440p:
++                return (8000..<12000)
++            case ._2160p:
++                return (12000..<20000)
++            }
++        }
++        
++        init(size: CGSize) {
++            let closest = Self.allCases.min {
++                abs($0.size.width - size.width) + abs($0.size.height - size.height) < abs($1.size.width - size.width) + abs($1.size.height - size.height)
++            }
++            
++            self = closest ?? ._2160p
++        }
++    }
++    
++}
+diff --git a/submodules/TelegramUniversalVideoContent/Sources/HLSVideoContent.swift b/submodules/TelegramUniversalVideoContent/Sources/HLSVideoContent.swift
+index 3cd8c3b4e3..0afe3e0b35 100644
+--- a/submodules/TelegramUniversalVideoContent/Sources/HLSVideoContent.swift
++++ b/submodules/TelegramUniversalVideoContent/Sources/HLSVideoContent.swift
+@@ -277,8 +277,7 @@ private final class HLSVideoContentNode: ASDisplayNode, UniversalVideoContentNod
+     
+     private let imageNode: TransformImageNode
+     
+-    private var playerItem: AVPlayerItem?
+-    private var player: AVPlayer?
++    private var player: HLSPlayer?
+     private let playerNode: ASDisplayNode
+     
+     private var loadProgressDisposable: Disposable?
+@@ -325,19 +324,17 @@ private final class HLSVideoContentNode: ASDisplayNode, UniversalVideoContentNod
+         
+         self.imageNode = TransformImageNode()
+         
+-        var player: AVPlayer?
+-        player = AVPlayer(playerItem: nil)
++        let player = HLSPlayer()
+         self.player = player
+-        if #available(iOS 16.0, *) {
+-            player?.defaultRate = Float(baseRate)
+-        }
++        player.playSettings.preferredRate = Float(baseRate)
++        
+         if !enableSound {
+-            player?.volume = 0.0
++            player.playSettings.volume = .zero
+         }
+         
+         self.playerNode = ASDisplayNode()
+-        self.playerNode.setLayerBlock({
+-            return AVPlayerLayer(player: player)
++        self.playerNode.setLayerBlock ({
++            return player
+         })
+         
+         self.intrinsicDimensions = fileReference.media.dimensions?.cgSize ?? CGSize(width: 480.0, height: 320.0)
+@@ -388,6 +385,7 @@ private final class HLSVideoContentNode: ASDisplayNode, UniversalVideoContentNod
+         
+         super.init()
+ 
++        player.playerDelegate = self
+         self.imageNode.setSignal(internalMediaGridMessageVideo(postbox: postbox, userLocation: self.userLocation, videoReference: fileReference) |> map { [weak self] getSize, getData in
+             Queue.mainQueue().async {
+                 if let strongSelf = self, strongSelf.dimensions == nil {
+@@ -405,14 +403,11 @@ private final class HLSVideoContentNode: ASDisplayNode, UniversalVideoContentNod
+         
+         self.addSubnode(self.imageNode)
+         self.addSubnode(self.playerNode)
+-        self.player?.actionAtItemEnd = .pause
+         
+         self.imageNode.imageUpdated = { [weak self] _ in
+             self?._ready.set(.single(Void()))
+         }
+         
+-        self.player?.addObserver(self, forKeyPath: "rate", options: [], context: nil)
+-        
+         self._bufferingStatus.set(.single(nil))
+         
+         if let playerSource = self.playerSource {
+@@ -422,41 +417,34 @@ private final class HLSVideoContentNode: ASDisplayNode, UniversalVideoContentNod
+                         return
+                     }
+                     
+-                    let playerItem: AVPlayerItem
+                     let assetUrl = "http://127.0.0.1:\(SharedHLSServer.shared.port)/\(playerSource.id)/master.m3u8"
+                     #if DEBUG
+                     print("HLSVideoContentNode: playing \(assetUrl)")
+                     #endif
+-                    playerItem = AVPlayerItem(url: URL(string: assetUrl)!)
+-                    
+-                    if #available(iOS 14.0, *) {
+-                        playerItem.startsOnFirstEligibleVariant = true
+-                    }
+-                    
+-                    self.setPlayerItem(playerItem)
++                    self.player?.preapare(manifestUrl: URL(string: assetUrl)!)
++                    self.updateStatus()
+                 }
+             })
+         }
+         
+         self.didBecomeActiveObserver = NotificationCenter.default.addObserver(forName: UIApplication.willEnterForegroundNotification, object: nil, queue: nil, using: { [weak self] _ in
+-            guard let strongSelf = self, let layer = strongSelf.playerNode.layer as? AVPlayerLayer else {
++            guard let self else {
+                 return
+             }
+-            layer.player = strongSelf.player
++            
++            self.player?.resume()
+         })
+         self.willResignActiveObserver = NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: nil, using: { [weak self] _ in
+-            guard let strongSelf = self, let layer = strongSelf.playerNode.layer as? AVPlayerLayer else {
++            guard let self else {
+                 return
+             }
+-            layer.player = nil
++            
++            self.player?.pause()
+         })
+     }
+     
+     deinit {
+-        self.player?.removeObserver(self, forKeyPath: "rate")
+-        
+-        self.setPlayerItem(nil)
+-        
++        self.player?.stop()
+         self.audioSessionDisposable.dispose()
+         
+         self.loadProgressDisposable?.dispose()
+@@ -484,92 +472,26 @@ private final class HLSVideoContentNode: ASDisplayNode, UniversalVideoContentNod
+         self.statusTimer?.invalidate()
+     }
+     
+-    private func setPlayerItem(_ item: AVPlayerItem?) {
+-        if let playerItem = self.playerItem {
+-            playerItem.removeObserver(self, forKeyPath: "playbackBufferEmpty")
+-            playerItem.removeObserver(self, forKeyPath: "playbackLikelyToKeepUp")
+-            playerItem.removeObserver(self, forKeyPath: "playbackBufferFull")
+-            playerItem.removeObserver(self, forKeyPath: "status")
+-            playerItem.removeObserver(self, forKeyPath: "presentationSize")
+-        }
+-        
+-        if let playerItemFailedToPlayToEndTimeObserver = self.playerItemFailedToPlayToEndTimeObserver {
+-            self.playerItemFailedToPlayToEndTimeObserver = nil
+-            NotificationCenter.default.removeObserver(playerItemFailedToPlayToEndTimeObserver)
+-        }
+-        
+-        if let didPlayToEndTimeObserver = self.didPlayToEndTimeObserver {
+-            self.didPlayToEndTimeObserver = nil
+-            NotificationCenter.default.removeObserver(didPlayToEndTimeObserver)
+-        }
+-        if let failureObserverId = self.failureObserverId {
+-            self.failureObserverId = nil
+-            NotificationCenter.default.removeObserver(failureObserverId)
+-        }
+-        if let errorObserverId = self.errorObserverId {
+-            self.errorObserverId = nil
+-            NotificationCenter.default.removeObserver(errorObserverId)
+-        }
+-        
+-        self.playerItem = item
+-        
+-        if let item {
+-            self.didPlayToEndTimeObserver = NotificationCenter.default.addObserver(forName: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: item, queue: nil, using: { [weak self] notification in
+-                self?.performActionAtEnd()
+-            })
+-            
+-            self.failureObserverId = NotificationCenter.default.addObserver(forName: AVPlayerItem.failedToPlayToEndTimeNotification, object: item, queue: .main, using: { notification in
+-#if DEBUG
+-                print("Player Error: \(notification.description)")
+-#endif
+-            })
+-            self.errorObserverId = NotificationCenter.default.addObserver(forName: AVPlayerItem.newErrorLogEntryNotification, object: item, queue: .main, using: { [weak item] notification in
+-                if let item {
+-                    let event = item.errorLog()?.events.last
+-                    if let event {
+-                        let _ = event
+-#if DEBUG
+-                        print("Player Error: \(event.errorComment ?? "<no comment>")")
+-#endif
+-                    }
+-                }
+-            })
+-            item.addObserver(self, forKeyPath: "presentationSize", options: [], context: nil)
+-        }
+-        
+-        if let playerItem = self.playerItem {
+-            playerItem.addObserver(self, forKeyPath: "playbackBufferEmpty", options: .new, context: nil)
+-            playerItem.addObserver(self, forKeyPath: "playbackLikelyToKeepUp", options: .new, context: nil)
+-            playerItem.addObserver(self, forKeyPath: "playbackBufferFull", options: .new, context: nil)
+-            playerItem.addObserver(self, forKeyPath: "status", options: .new, context: nil)
+-            self.playerItemFailedToPlayToEndTimeObserver = NotificationCenter.default.addObserver(forName: NSNotification.Name.AVPlayerItemFailedToPlayToEndTime, object: playerItem, queue: OperationQueue.main, using: { [weak self] _ in
+-                guard let self else {
+-                    return
+-                }
+-                let _ = self
+-            })
+-        }
+-        
+-        self.player?.replaceCurrentItem(with: self.playerItem)
+-    }
+-    
+     private func updateStatus() {
+         guard let player = self.player else {
+             return
+         }
+-        let isPlaying = !player.rate.isZero
++        
++        let isPlaying = !player.currentRate.isZero
+         let status: MediaPlayerPlaybackStatus
+         if self.isBuffering {
+             status = .buffering(initial: false, whilePlaying: isPlaying, progress: 0.0, display: true)
+         } else {
+             status = isPlaying ? .playing : .paused
+         }
+-        var timestamp = player.currentTime().seconds
++        
++        var timestamp = player.currentTime
+         if timestamp.isFinite && !timestamp.isNaN {
+         } else {
+-            timestamp = 0.0
++            timestamp = .zero
+         }
+-        self.statusValue = MediaPlayerStatus(generationTimestamp: CACurrentMediaTime(), duration: Double(self.approximateDuration), dimensions: CGSize(), timestamp: timestamp, baseRate: self.baseRate, seekId: self.seekId, status: status, soundEnabled: true)
++        
++        self.statusValue = MediaPlayerStatus(generationTimestamp: CACurrentMediaTime(), duration: Double(self.approximateDuration), dimensions: CGSize(), timestamp: timestamp, baseRate: self.baseRate, seekId:self.seekId, status: status, soundEnabled: true)
+         self._status.set(self.statusValue)
+         
+         if case .playing = status {
+@@ -587,28 +509,6 @@ private final class HLSVideoContentNode: ASDisplayNode, UniversalVideoContentNod
+         }
+     }
+     
+-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+-        if keyPath == "rate" {
+-            if let player = self.player {
+-                let isPlaying = !player.rate.isZero
+-                if isPlaying {
+-                    self.isBuffering = false
+-                }
+-            }
+-            self.updateStatus()
+-        } else if keyPath == "playbackBufferEmpty" {
+-            self.isBuffering = true
+-            self.updateStatus()
+-        } else if keyPath == "playbackLikelyToKeepUp" || keyPath == "playbackBufferFull" {
+-            self.isBuffering = false
+-            self.updateStatus()
+-        } else if keyPath == "presentationSize" {
+-            if let currentItem = self.player?.currentItem {
+-                print("Presentation size: \(Int(currentItem.presentationSize.height))")
+-            }
+-        }
+-    }
+-    
+     private func performActionAtEnd() {
+         for listener in self.playbackCompletedListeners.copyItems() {
+             listener()
+@@ -635,7 +535,7 @@ private final class HLSVideoContentNode: ASDisplayNode, UniversalVideoContentNod
+             self._status.set(MediaPlayerStatus(generationTimestamp: 0.0, duration: Double(self.approximateDuration), dimensions: CGSize(), timestamp: 0.0, baseRate: self.baseRate, seekId: self.seekId, status: .buffering(initial: true, whilePlaying: true, progress: 0.0, display: true), soundEnabled: true))
+         }
+         if !self.hasAudioSession {
+-            if self.player?.volume != 0.0 {
++            if self.player?.playSettings.volume != 0.0 {
+                 self.audioSessionDisposable.set(self.audioSessionManager.push(audioSessionType: .play(mixWithOthers: false), activate: { [weak self] _ in
+                     guard let self else {
+                         return
+@@ -667,12 +567,12 @@ private final class HLSVideoContentNode: ASDisplayNode, UniversalVideoContentNod
+     func togglePlayPause() {
+         assert(Queue.mainQueue().isCurrent())
+         
+-        guard let player = self.player else {
++        guard let player else {
+             return
+         }
+         
+-        if player.rate.isZero {
+-            self.play()
++        if player.currentRate.isZero {
++            self.player?.resume()
+         } else {
+             self.pause()
+         }
+@@ -684,7 +584,7 @@ private final class HLSVideoContentNode: ASDisplayNode, UniversalVideoContentNod
+             if !self.hasAudioSession {
+                 self.audioSessionDisposable.set(self.audioSessionManager.push(audioSessionType: .play(mixWithOthers: false), activate: { [weak self] _ in
+                     self?.hasAudioSession = true
+-                    self?.player?.volume = 1.0
++                    self?.player?.playSettings.volume = 1.0
+                 }, deactivate: { [weak self] _ in
+                     self?.hasAudioSession = false
+                     self?.player?.pause()
+@@ -692,7 +592,7 @@ private final class HLSVideoContentNode: ASDisplayNode, UniversalVideoContentNod
+                 }))
+             }
+         } else {
+-            self.player?.volume = 0.0
++            self.player?.playSettings.volume = .zero
+             self.hasAudioSession = false
+             self.audioSessionDisposable.set(nil)
+         }
+@@ -701,16 +601,16 @@ private final class HLSVideoContentNode: ASDisplayNode, UniversalVideoContentNod
+     func seek(_ timestamp: Double) {
+         assert(Queue.mainQueue().isCurrent())
+         self.seekId += 1
+-        self.player?.seek(to: CMTime(seconds: timestamp, preferredTimescale: 30))
++        self.player?.seek(at: UInt(timestamp))
+     }
+     
+     func playOnceWithSound(playAndRecord: Bool, seek: MediaPlayerSeek, actionAtEnd: MediaPlayerPlayOnceWithSoundActionAtEnd) {
+-        self.player?.volume = 1.0
++        self.player?.playSettings.volume = 1.0
+         self.play()
+     }
+     
+     func setSoundMuted(soundMuted: Bool) {
+-        self.player?.volume = soundMuted ? 0.0 : 1.0
++        self.player?.playSettings.volume = soundMuted ? 0.0 : 1.0
+     }
+     
+     func continueWithOverridingAmbientMode(isAmbient: Bool) {
+@@ -720,7 +620,7 @@ private final class HLSVideoContentNode: ASDisplayNode, UniversalVideoContentNod
+     }
+     
+     func continuePlayingWithoutSound(actionAtEnd: MediaPlayerPlayOnceWithSoundActionAtEnd) {
+-        self.player?.volume = 0.0
++        self.player?.playSettings.volume = .zero
+         self.hasAudioSession = false
+         self.audioSessionDisposable.set(nil)
+     }
+@@ -732,20 +632,16 @@ private final class HLSVideoContentNode: ASDisplayNode, UniversalVideoContentNod
+         guard let player = self.player else {
+             return
+         }
++        
+         self.baseRate = baseRate
+-        if #available(iOS 16.0, *) {
+-            player.defaultRate = Float(baseRate)
+-        }
+-        if player.rate != 0.0 {
+-            player.rate = Float(baseRate)
+-        }
++        player.playSettings.preferredRate = Float(baseRate)
+         self.updateStatus()
+     }
+     
+     func setVideoQuality(_ videoQuality: UniversalVideoContentVideoQuality) {
+         self.preferredVideoQuality = videoQuality
+         
+-        guard let currentItem = self.player?.currentItem else {
++        guard let player else {
+             return
+         }
+         guard let playerSource = self.playerSource else {
+@@ -754,26 +650,26 @@ private final class HLSVideoContentNode: ASDisplayNode, UniversalVideoContentNod
+         
+         switch videoQuality {
+         case .auto:
+-            currentItem.preferredPeakBitRate = 0.0
++            player.playSettings.preferredRate = .zero
+         case let .quality(qualityValue):
+             if let file = playerSource.qualityFiles[qualityValue] {
+                 if let size = file.media.size, let duration = file.media.duration, duration != 0.0 {
+                     let bandwidth = Int(Double(size) / duration) * 8
+-                    currentItem.preferredPeakBitRate = Double(bandwidth)
++                    player.playSettings.preferredRate = Float(bandwidth)
+                 }
+             }
+         }
+-        
+     }
+     
+     func videoQualityState() -> (current: Int, preferred: UniversalVideoContentVideoQuality, available: [Int])? {
+-        guard let currentItem = self.player?.currentItem else {
++        guard let currentTrack = player?.currentTrack else {
+             return nil
+         }
+         guard let playerSource = self.playerSource else {
+             return nil
+         }
+-        let current = Int(currentItem.presentationSize.height)
++        
++        let current = Int(currentTrack.resolution.size.height)
+         var available: [Int] = Array(playerSource.qualityFiles.keys)
+         available.sort(by: { $0 > $1 })
+         return (current, self.preferredVideoQuality, available)
+@@ -796,3 +692,34 @@ private final class HLSVideoContentNode: ASDisplayNode, UniversalVideoContentNod
+     func setCanPlaybackWithoutHierarchy(_ canPlaybackWithoutHierarchy: Bool) {
+     }
+ }
++
++extension HLSVideoContentNode: HLSPlayerDelegate {
++    
++    func player(_ player: HLSPlayer, rate: Float, for track: HLSStreamManager.Track) {
++        let isPlaying = !rate.isZero
++        if isPlaying {
++            isBuffering = false
++        }
++        
++        updateStatus()
++    }
++    
++    func player(_ player: HLSPlayer, didStartPlay track: HLSStreamManager.Track) {
++        updateStatus()
++    }
++    
++    func player(_ player: HLSPlayer, didStopPlay track: HLSStreamManager.Track) {
++        updateStatus()
++    }
++    
++    func player(_ player: HLSPlayer, didEndPlay track: HLSStreamManager.Track) {
++        performActionAtEnd()
++    }
++    
++    func player(_ player: HLSPlayer, error: any Error, for track: HLSStreamManager.Track) {
++#if DEBUG
++        print("Player Error: \(error)")
++#endif
++    }
++    
++}
+diff --git a/submodules/ffmpeg/BUILD b/submodules/ffmpeg/BUILD
+index 49b0b1323d..012c18ebec 100644
+--- a/submodules/ffmpeg/BUILD
++++ b/submodules/ffmpeg/BUILD
+@@ -102,6 +102,8 @@ ffmpeg_header_paths = [
+     "libavcodec/dv_profile.h",
+     "libswresample/version.h",
+     "libswresample/swresample.h",
++    "libswscale/swscale.h",
++    "libswscale/version.h",
+ ]
+ 
+ ffmpeg_libs = [
+@@ -109,6 +111,7 @@ ffmpeg_libs = [
+     "libavcodec.a",
+     "libavformat.a",
+     "libswresample.a",
++    "libswscale.a",
+ ]
+ 
+ source_files = glob([
+diff --git a/submodules/ffmpeg/Sources/FFMpeg/build-ffmpeg-bazel.sh b/submodules/ffmpeg/Sources/FFMpeg/build-ffmpeg-bazel.sh
+index 0bd88402a1..283d12fb01 100755
+--- a/submodules/ffmpeg/Sources/FFMpeg/build-ffmpeg-bazel.sh
++++ b/submodules/ffmpeg/Sources/FFMpeg/build-ffmpeg-bazel.sh
+@@ -33,7 +33,7 @@ PKG_CONFIG="$SOURCE_DIR/pkg-config"
+ 
+ export PATH="$SOURCE_DIR:$PATH"
+ 
+-LIB_NAMES="libavcodec libavformat libavutil libswresample"
++LIB_NAMES="libavcodec libavformat libavutil libswresample libswscale"
+ 
+ set -e
+ 
+@@ -43,6 +43,7 @@ CONFIGURE_FLAGS="--enable-cross-compile --disable-programs \
+                  --enable-avcodec  \
+                  --enable-swresample \
+                  --enable-avformat \
++                 --enable-swscale \
+                  --disable-xlib \
+                  --enable-libopus \
+ 				 --enable-libvpx \
+-- 
+2.39.5 (Apple Git-154)
+
